@@ -1,0 +1,19 @@
+{
+  "name": "pccoe-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A focused F.Y. Physics lab site with an interactive Simple Harmonic Motion wave simulation.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "npm run dev",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs dist",
+    "lint": "node scripts/lint.mjs",
+    "test": "node --test",
+    "check": "npm run lint && npm test && npm run build"
+  }
+}
