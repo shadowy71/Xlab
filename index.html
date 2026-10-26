@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="PCCOE Lab: a focused F.Y. Physics workspace with an interactive Simple Harmonic Motion wave simulation."
+    />
+    <title>PCCOE Lab · F.Y. Physics</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" id="top">
+      <div class="header-inner">
+        <a class="brand" href="#main" aria-label="PCCOE Lab, go to main content">
+          <span class="brand-mark" aria-hidden="true">PL</span>
+          <span class="brand-text">
+            <strong>PCCOE Lab</strong>
+            <span>F.Y. Physics</span>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Page sections">
+          <a href="#topics">Topics</a>
+          <a href="#shm-simulation">SHM simulation</a>
+          <a href="#model-notes">Model notes</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-shell" id="main">
+      <section class="intro" aria-labelledby="intro-heading">
+        <div class="intro-copy">
+          <p class="eyebrow">Course workspace · F.Y. Physics</p>
+          <h1 id="intro-heading">A focused lab tool for first-year physics.</h1>
+          <p>
+            One experiment is ready: a driven string for exploring simple harmonic
+            motion, traveling disturbances, and boundary reflections. The remaining
+            course areas are navigation placeholders.
+          </p>
+        </div>
+        <dl class="intro-facts" aria-label="Workspace summary">
+          <div>
+            <dt>Course</dt>
+            <dd>F.Y. Physics</dd>
+          </div>
+          <div>
+            <dt>Available lab</dt>
+            <dd>SHM</dd>
+          </div>
+          <div>
+            <dt>Other topics</dt>
+            <dd>Coming soon</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div class="workspace">
+        <div class="lab-column">
+          <section class="lab-section" id="shm-simulation" aria-labelledby="shm-heading">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Active lab · only implemented simulation</p>
+                <h2 id="shm-heading">Simple Harmonic Motion</h2>
+                <p class="section-summary">
+                  Drive a horizontal line of particles and watch a disturbance
+                  travel, reflect, and decay. The particles stay in place; only
+                  their vertical displacement changes.
+                </p>
+              </div>
+              <span class="active-marker">
+                <span class="active-dot" aria-hidden="true"></span>
+                Working simulation
+              </span>
+            </div>
+
+            <div class="sim-panel">
+              <div class="sim-config">
+                <fieldset class="choice-group" id="mode-group" aria-describedby="mode-help">
+                  <legend>Mode</legend>
+                  <div class="choice-options">
+                    <label class="choice" for="mode-manual">
+                      <input id="mode-manual" type="radio" name="mode" value="manual" />
+                      <span>Manual</span>
+                    </label>
+                    <label class="choice" for="mode-oscillate">
+                      <input id="mode-oscillate" type="radio" name="mode" value="oscillate" checked />
+                      <span>Oscillate</span>
+                    </label>
+                    <label class="choice" for="mode-pulse">
+                      <input id="mode-pulse" type="radio" name="mode" value="pulse" />
+                      <span>Pulse</span>
+                    </label>
+                  </div>
+                  <p class="group-help" id="mode-help">
+                    Changing mode restarts the trace at 0 s; other controls apply immediately.
+                  </p>
+                </fieldset>
+
+                <fieldset class="choice-group" id="end-group" aria-describedby="end-help">
+                  <legend>Right end condition</legend>
+                  <div class="choice-options">
+                    <label class="choice" for="end-fixed">
+                      <input id="end-fixed" type="radio" name="end" value="fixed" checked />
+                      <span>Fixed End</span>
+                    </label>
+                    <label class="choice" for="end-loose">
+                      <input id="end-loose" type="radio" name="end" value="loose" />
+                      <span>Loose End</span>
+                    </label>
+                    <label class="choice" for="end-no-end">
+                      <input id="end-no-end" type="radio" name="end" value="noEnd" />
+                      <span>No End</span>
+                    </label>
+                  </div>
+                  <p class="group-help" id="end-help">
+                    Fixed inverts a reflection; loose keeps its sign; no end lets it leave.
+                  </p>
+                </fieldset>
+              </div>
+
+              <div class="canvas-frame">
+                <canvas
+                  id="wave-canvas"
+                  role="img"
+                  aria-label="Animated horizontal string with alternating red and cyan particles, a left oscillator, and a configurable right boundary."
+                  aria-describedby="canvas-instructions"
+                ></canvas>
+                <div class="canvas-error" id="canvas-error" hidden role="alert">
+                  The Canvas visualization could not start. Try reloading the page or
+                  using a browser with 2D Canvas support.
+                </div>
+                <p class="sr-only" id="canvas-instructions">
+                  Choose a mode and end condition, then use the playback controls. In
+                  Manual mode, use the driver position slider or drag the driver
+                  handle. The colored particles move vertically around equilibrium;
+                  they do not travel horizontally with the wave.
+                </p>
+                <div class="canvas-caption" aria-hidden="true">
+                  <span><i class="dot dot-red"></i> Particle A</span>
+                  <span><i class="dot dot-cyan"></i> Particle B</span>
+                  <span class="caption-rule"></span>
+                  <span>Particles move vertically · disturbance travels right</span>
+                </div>
+                <noscript>
+                  <p class="noscript">
+                    This simulation needs JavaScript. Enable it to use the SHM controls
+                    and Canvas visualization.
+                  </p>
+                </noscript>
+              </div>
+
+              <div class="transport-bar">
+                <div class="transport-buttons" role="group" aria-label="Playback controls">
+                  <button class="button button-primary" id="play-button" type="button">Play</button>
+                  <button class="button" id="pause-button" type="button" disabled>Pause</button>
+                  <button class="button" id="step-button" type="button" title="Advance 1/30 s of simulated time">Step</button>
+                  <button class="button" id="reset-button" type="button">Reset</button>
+                  <button class="button button-secondary" id="pulse-button" type="button" hidden>
+                    Send pulse
+                  </button>
+                </div>
+                <div class="transport-status">
+                  <span class="play-state" id="play-state">Paused</span>
+                  <span class="status-divider" aria-hidden="true"></span>
+                  <span id="transport-hint">Press Play to start the continuous drive.</span>
+                </div>
+              </div>
+
+              <div class="manual-controls" id="manual-controls" hidden>
+                <div class="control-head">
+                  <label for="manual-position">Driver position</label>
+                  <output id="manual-position-value" for="manual-position">+0.0 cm</output>
+                </div>
+                <div class="manual-row">
+                  <input
+                    id="manual-position"
+                    type="range"
+                    min="-3"
+                    max="3"
+                    step="0.1"
+                    value="0"
+                    aria-describedby="manual-help"
+                  />
+                  <button class="button button-small" id="center-driver" type="button">Center</button>
+                </div>
+                <p class="control-help" id="manual-help">
+                  Move the left driver with this slider or drag its handle on the
+                  canvas. Press Play or Step to see the disturbance propagate.
+                </p>
+              </div>
+
+              <div class="sim-details">
+                <div class="controls-column">
+                  <h3 class="subheading">Model controls</h3>
+                  <div class="control-grid">
+                    <div class="control-block">
+                      <div class="control-head">
+                        <label for="amplitude">Amplitude</label>
+                        <output id="amplitude-value" for="amplitude">1.8 cm</output>
+                      </div>
+                      <input
+                        id="amplitude"
+                        type="range"
+                        min="0.5"
+                        max="3"
+                        step="0.1"
+                        value="1.8"
+                        aria-describedby="amplitude-help"
+                      />
+                      <p class="control-help" id="amplitude-help">Maximum source displacement, ±A.</p>
+                    </div>
+
+                    <div class="control-block">
+                      <div class="control-head">
+                        <label for="frequency">Frequency</label>
+                        <output id="frequency-value" for="frequency">1.0 Hz</output>
+                      </div>
+                      <input
+                        id="frequency"
+                        type="range"
+                        min="0.2"
+                        max="2.5"
+                        step="0.1"
+                        value="1.0"
+                        aria-describedby="frequency-help"
+                      />
+                      <p class="control-help" id="frequency-help">
+                        Sets the oscillator period in Oscillate mode and pulse duration in Pulse mode.
+                      </p>
+                    </div>
+
+                    <div class="control-block">
+                      <div class="control-head">
+                        <label for="damping">Damping</label>
+                        <output id="damping-value" for="damping">0.35 s⁻¹</output>
+                      </div>
+                      <input
+                        id="damping"
+                        type="range"
+                        min="0"
+                        max="1.2"
+                        step="0.05"
+                        value="0.35"
+                        aria-describedby="damping-help"
+                      />
+                      <p class="control-help" id="damping-help">Loss per second of travel time, e<sup>−γt</sup>.</p>
+                    </div>
+
+                    <div class="control-block">
+                      <div class="control-head">
+                        <label for="tension">Tension</label>
+                        <output id="tension-value" for="tension">1.5 N</output>
+                      </div>
+                      <input
+                        id="tension"
+                        type="range"
+                        min="0.5"
+                        max="4"
+                        step="0.1"
+                        value="1.5"
+                        aria-describedby="tension-help"
+                      />
+                      <p class="control-help" id="tension-help">Model units; higher tension raises wave speed.</p>
+                    </div>
+
+                    <div class="control-block control-block-wide">
+                      <div class="control-head">
+                        <label for="playback-speed">Playback speed</label>
+                        <output id="playback-speed-value" for="playback-speed">1.00×</output>
+                      </div>
+                      <input
+                        id="playback-speed"
+                        type="range"
+                        min="0.25"
+                        max="2"
+                        step="0.25"
+                        value="1"
+                        aria-describedby="playback-speed-help"
+                      />
+                      <p class="control-help" id="playback-speed-help">
+                        Scales simulated time only. Step always advances a fixed 1/30 s.
+                      </p>
+                    </div>
+                  </div>
+
+                  <fieldset class="display-options" aria-describedby="display-help">
+                    <legend>Display options</legend>
+                    <div class="toggle-row">
+                      <label class="toggle" for="show-ruler">
+                        <input id="show-ruler" type="checkbox" checked />
+                        <span>Ruler</span>
+                      </label>
+                      <label class="toggle" for="show-stopwatch">
+                        <input id="show-stopwatch" type="checkbox" checked />
+                        <span>Stopwatch</span>
+                      </label>
+                      <label class="toggle" for="show-reference">
+                        <input id="show-reference" type="checkbox" checked />
+                        <span>Reference line</span>
+                      </label>
+                    </div>
+                    <p class="control-help" id="display-help">
+                      The ruler marks 0–1.00 m, the stopwatch shows simulated time,
+                      and the reference line shows equilibrium plus ±A guides.
+                    </p>
+                  </fieldset>
+                </div>
+
+                <div class="readout-column">
+                  <h3 class="subheading">Readouts</h3>
+                  <dl class="readouts" aria-label="Simulation readouts">
+                    <div>
+                      <dt>Elapsed time</dt>
+                      <dd id="readout-time">0.00 s</dd>
+                    </div>
+                    <div>
+                      <dt>Driver y</dt>
+                      <dd id="readout-driver">0.00 cm</dd>
+                    </div>
+                    <div>
+                      <dt>Amplitude A</dt>
+                      <dd id="readout-amplitude">1.8 cm</dd>
+                    </div>
+                    <div>
+                      <dt>Frequency f</dt>
+                      <dd id="readout-frequency">1.0 Hz</dd>
+                    </div>
+                    <div>
+                      <dt>Period T</dt>
+                      <dd id="readout-period">1.00 s</dd>
+                    </div>
+                    <div>
+                      <dt>Wave speed v</dt>
+                      <dd id="readout-speed">1.20 m/s</dd>
+                    </div>
+                    <div>
+                      <dt id="spatial-label">Wavelength λ</dt>
+                      <dd id="spatial-value">1.20 m</dd>
+                    </div>
+                    <div>
+                      <dt>Boundary</dt>
+                      <dd id="readout-boundary">Fixed · inverted</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="explanation" aria-labelledby="explanation-heading">
+                <h3 id="explanation-heading">What to observe</h3>
+                <div id="explanation-text" aria-live="polite">
+                  <p>
+                    <strong id="mode-explanation-heading">Continuous drive</strong>
+                    <span id="mode-explanation">
+                      The driver repeats sinusoidally. The wave at a point farther
+                      right is the same motion delayed by x/v. Watch the phase lag
+                      from left to right: the pattern travels while individual
+                      particles oscillate vertically around equilibrium.
+                    </span>
+                  </p>
+                  <p>
+                    <strong id="end-explanation-heading">Fixed end</strong>
+                    <span id="end-explanation">
+                      The endpoint cannot move, so it is a node. The reflected
+                      pulse is inverted: a crest returns as a trough. The display
+                      adds an inverted, delayed copy of the source.
+                    </span>
+                  </p>
+                </div>
+                <p class="model-summary" id="model-summary">
+                  v = 1.20 m/s · γ = 0.35 s⁻¹ · λ = 1.20 m · changing mode or end
+                  restarts the trace.
+                </p>
+              </div>
+
+              <p class="sr-only" id="simulation-status" role="status" aria-live="polite"></p>
+              <p class="motion-note" id="motion-note" hidden>
+                Reduced motion is enabled: playback starts paused. Use Play when ready.
+              </p>
+            </div>
+          </section>
+
+          <section class="notes-section" id="model-notes" aria-labelledby="notes-heading">
+            <div class="notes-block">
+              <p class="eyebrow">Reference</p>
+              <h2 id="notes-heading">How to use this lab</h2>
+              <ol class="steps">
+                <li>Choose a mode and a right end condition.</li>
+                <li>Set amplitude, frequency, damping, tension, and playback speed.</li>
+                <li>Use Play, Pause, Step, and Reset to control simulated time.</li>
+                <li>In Pulse mode, use <strong>Send pulse</strong>; in Manual mode, use the driver slider or drag its handle.</li>
+                <li>Turn the ruler, stopwatch, and reference guides on or off as needed.</li>
+              </ol>
+            </div>
+            <div class="notes-block">
+              <h3>Model assumptions</h3>
+              <ul class="assumptions">
+                <li>
+                  The string is 1.00 m long in model space. Red and cyan dots are
+                  neighboring particles with fixed horizontal positions; each moves
+                  only vertically around equilibrium. The disturbance travels; the
+                  particles do not travel with it.
+                </li>
+                <li>
+                  A point at distance x shows the source delayed by x/v, where
+                  v = 1.20 √(T / 1.50 N) m/s. Tension is in model units with linear
+                  density held constant; it is not a calibration of a real string.
+                </li>
+                <li>
+                  Damping uses e<sup>−γ·travel time</sup>. Oscillate drives a sine
+                  source; Pulse sends one smooth half-cycle whose duration is set by
+                  frequency; Manual records the driver position.
+                </li>
+                <li>
+                  Fixed end adds an inverted delayed copy, loose end adds an upright
+                  delayed copy, and no end adds no reflection. Reflections fade in
+                  near the prescribed left driver.
+                </li>
+                <li>
+                  The animation uses fixed 1/120 s steps and clamps frame delays to
+                  50 ms. Changing mode or end condition restarts at t = 0; other
+                  control changes apply immediately to the current model.
+                </li>
+              </ul>
+            </div>
+          </section>
+        </div>
+
+        <aside class="topic-browser" id="topics" aria-labelledby="topics-heading">
+          <div class="aside-head">
+            <h2 id="topics-heading">Topic browser</h2>
+            <p>Starter navigation for the course.</p>
+          </div>
+
+          <ol class="topic-list">
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">01</span>
+              <span class="topic-name">Measurement &amp; uncertainty</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">02</span>
+              <span class="topic-name">Motion &amp; kinematics</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">03</span>
+              <span class="topic-name">Forces &amp; Newton’s laws</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">04</span>
+              <span class="topic-name">Work, energy &amp; momentum</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">05</span>
+              <span class="topic-name">Rotational motion</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-active">
+              <a class="topic-link" href="#shm-simulation">
+                <span class="topic-index">06</span>
+                <span class="topic-name">
+                  Oscillations &amp; waves
+                  <small>Simple Harmonic Motion</small>
+                </span>
+                <span class="topic-state">Open simulation</span>
+              </a>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">07</span>
+              <span class="topic-name">Thermal physics</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">08</span>
+              <span class="topic-name">Optics</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">09</span>
+              <span class="topic-name">Electricity &amp; magnetism</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+            <li class="topic-row is-placeholder" aria-disabled="true">
+              <span class="topic-index">10</span>
+              <span class="topic-name">Modern physics</span>
+              <span class="topic-state">Coming soon</span>
+            </li>
+          </ol>
+
+          <p class="topic-note" id="topic-disclaimer">
+            Starter placeholders only — not a complete or official PCCOE F.Y.
+            Physics syllabus.
+          </p>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span>PCCOE Lab · F.Y. Physics</span>
+        <span>Static, dependency-free teaching tool</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
