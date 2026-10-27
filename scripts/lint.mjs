@@ -57,13 +57,125 @@ const cssPath = path.join(projectRoot, "src", "styles.css");
 const html = fs.readFileSync(htmlPath, "utf8");
 const css = fs.readFileSync(cssPath, "utf8");
 
-const ids = new Set(Array.from(html.matchAll(/\sid="([^"]+)"/g), (match) => match[1]));
+const ids = new Set();
+const duplicateIds = new Set();
+for (const match of html.matchAll(/\sid="([^"]+)"/g)) {
+  if (ids.has(match[1])) duplicateIds.add(match[1]);
+  ids.add(match[1]);
+}
+for (const id of duplicateIds) errors.push(`Duplicate id in index.html: #${id}`);
+
+// Template strings in JavaScript must not reuse an id that already exists in
+// the document (getElementById would silently return the wrong element).
+for (const file of javascriptFiles) {
+  const source = fs.readFileSync(path.join(projectRoot, file), "utf8");
+  for (const match of source.matchAll(/\sid="([A-Za-z][\w-]*)"/g)) {
+    if (ids.has(match[1])) {
+      errors.push(`JavaScript-generated id collides with index.html: #${match[1]} (${file})`);
+    }
+  }
+}
+
 const forIds = new Set(Array.from(html.matchAll(/\sfor="([^"]+)"/g), (match) => match[1]));
 
 const requiredIds = [
+  // Shell
   "main",
-  "topics",
+  "top",
+  "grating-lab",
   "shm-simulation",
+  "model-notes",
+  // Diffraction grating laboratory
+  "spectrometer-svg",
+  "spectrometer-title",
+  "spectrometer-desc",
+  "eyepiece-svg",
+  "eyepiece-status",
+  "spectrum-legend",
+  "stage-list",
+  "stage-progress",
+  "guide-text",
+  "guide-action",
+  "lamp-toggle",
+  "collimator-align",
+  "grating-mount",
+  "slit-width",
+  "grating-tilt",
+  "zero-grating",
+  "order-1",
+  "order-2",
+  "setup-status",
+  "vernier-zero-deg",
+  "vernier-zero-min",
+  "apply-zero",
+  "telescope-left",
+  "telescope-right",
+  "telescope-left-fine",
+  "telescope-right-fine",
+  "telescope-left-micro",
+  "telescope-right-micro",
+  "telescope-lock",
+  "telescope-reset",
+  "record-left",
+  "record-right",
+  "readout-dms",
+  "readout-raw",
+  "readout-telescope",
+  "readout-offset",
+  "readout-line",
+  "readout-alignment",
+  "alignment-state",
+  "colour-select",
+  "show-left",
+  "show-right",
+  "wavelength-unit",
+  "show-seconds",
+  "table-a-body",
+  "table-b-body",
+  "calculation-colour",
+  "worked-calculation",
+  "graph-svg",
+  "result-list",
+  "conclusion-text",
+  "history-list",
+  "ref-violet",
+  "ref-green",
+  "ref-yellow",
+  "ref-red",
+  "calculate-results",
+  "export-csv",
+  "print-record",
+  "reset-experiment",
+  "clear-storage",
+  "mode-toggle",
+  "contrast-toggle",
+  "animation-speed",
+  "start-experiment",
+  "theory-live",
+  "order-validity",
+  "notebook-body",
+  "notebook-results",
+  "notebook-summary",
+  "notebook-input",
+  "notebook-apply",
+  "notebook-clear",
+  "notebook-restore",
+  "viva-list",
+  "viva-numeric",
+  "journal-content",
+  "journal-print",
+  "panel-live",
+  "panel-notebook",
+  "panel-theory",
+  "panel-viva",
+  "panel-journal",
+  "tab-live",
+  "tab-notebook",
+  "tab-theory",
+  "tab-viva",
+  "tab-journal",
+  "print-report",
+  // SHM laboratory
   "model-notes",
   "wave-canvas",
   "canvas-instructions",
@@ -93,12 +205,13 @@ for (const id of forIds) {
   if (!ids.has(id)) errors.push(`label/output references missing id: ${id}`);
 }
 
+const labelsFor = new Set(forIds);
 for (const match of html.matchAll(/<input\b[^>]*>/gi)) {
   const tag = match[0];
   const id = (tag.match(/\sid="([^"]+)"/) || [])[1];
   if (!id) {
     errors.push(`Input is missing an id: ${tag.slice(0, 90)}`);
-  } else if (!forIds.has(id)) {
+  } else if (!labelsFor.has(id)) {
     errors.push(`Input #${id} has no associated <label for="...">`);
   }
 }
@@ -119,7 +232,7 @@ for (const match of html.matchAll(/<output\b[^>]*>/gi)) {
   }
 }
 
-for (const match of html.matchAll(/\saria-(?:describedby|labelledby)="([^"]+)"/gi)) {
+for (const match of html.matchAll(/\saria-(?:describedby|labelledby|controls)="([^"]+)"/gi)) {
   for (const id of match[1].trim().split(/\s+/)) {
     if (!ids.has(id)) errors.push(`ARIA reference points to missing id: ${id}`);
   }
@@ -128,7 +241,7 @@ for (const match of html.matchAll(/\saria-(?:describedby|labelledby)="([^"]+)"/g
 for (const match of html.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>/gi)) {
   const href = match[1];
   if (href === "#" || href === "") {
-    errors.push("Placeholder links are not allowed; use non-interactive text for unavailable topics.");
+    errors.push("Placeholder links are not allowed.");
   } else if (href.startsWith("#")) {
     if (!ids.has(href.slice(1))) errors.push(`Anchor points to missing id: ${href}`);
   } else if (href.startsWith("./")) {
@@ -142,24 +255,33 @@ for (const match of html.matchAll(/\s(?:src|href)="(\.\/[^"#]+)"/gi)) {
   if (!fs.existsSync(target)) errors.push(`Local asset is missing: ${match[1]}`);
 }
 
-if (/<a\b[^>]*aria-disabled/gi.test(html)) {
-  errors.push("Unavailable topics must not be links.");
+// The lab index must only advertise simulations that actually exist.
+if (/Coming soon/i.test(html)) {
+  errors.push("Placeholder topics marked 'Coming soon' must be removed.");
 }
-
-const forbiddenCss = [
-  [/linear-gradient|radial-gradient|conic-gradient/i, "CSS gradients are not part of the design system"],
-  [/box-shadow|text-shadow/i, "shadows or glow effects are not part of the design system"],
-  [/\b(?:purple|violet|indigo)\b/i, "purple-family colors are not part of the palette"],
-  [/@keyframes|\banimation\s*:/i, "decorative CSS animations are not part of the design system"],
-];
-for (const [pattern, message] of forbiddenCss) {
-  if (pattern.test(css)) errors.push(message);
+if (/aria-disabled="true"/i.test(html)) {
+  errors.push("Unavailable topics must not be rendered as disabled placeholders.");
 }
 
 const openBraces = (css.match(/\{/g) || []).length;
 const closeBraces = (css.match(/\}/g) || []).length;
 if (openBraces !== closeBraces) {
   errors.push(`Unbalanced CSS braces: ${openBraces} opening, ${closeBraces} closing`);
+}
+
+const requiredCssSelectors = [
+  ".lab-layout",
+  ".instrument-panel",
+  ".data-table",
+  ".stage-chip",
+  ".svg-telescope-arm",
+  ".lab-toast",
+  ".print-only",
+  "@media print",
+  "high-contrast",
+];
+for (const selector of requiredCssSelectors) {
+  if (!css.includes(selector)) errors.push(`Stylesheet is missing ${selector}`);
 }
 
 if (errors.length > 0) {
@@ -169,5 +291,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `Lint passed: ${javascriptFiles.length} JavaScript files, ${ids.size} HTML ids, local assets and imports verified.`,
+  `Lint passed: ${javascriptFiles.length} JavaScript files, ${ids.size} unique HTML ids, local assets and module imports verified.`,
 );

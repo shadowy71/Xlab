@@ -1,8 +1,8 @@
 {
   "name": "pccoe-lab",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "A focused F.Y. Physics lab site with an interactive Simple Harmonic Motion wave simulation.",
+  "description": "PCCOE Lab: interactive F.Y. Engineering Physics virtual laboratories for the diffraction grating experiment and simple harmonic motion.",
   "type": "module",
   "engines": {
     "node": ">=18"

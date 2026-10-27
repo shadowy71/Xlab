@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(scriptDir, "..");
 const distDir = path.join(projectRoot, "dist");
-const entries = ["index.html", "assets", "src"];
+const entries = ["index.html", "assets", "src", ".nojekyll"];
 
 for (const entry of entries) {
   if (!fs.existsSync(path.join(projectRoot, entry))) {
