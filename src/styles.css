@@ -1038,15 +1038,13 @@ fieldset {
   border-radius: 6px;
 }
 
+/* The telescope arm is rotated with an SVG transform attribute set in
+   JavaScript (rotate(a 500 330)) so it always pivots around the turntable
+   axis, independent of CSS transform-box support. */
 .svg-telescope-arm {
   transform-box: view-box;
   transform-origin: 500px 330px;
-  transition: transform calc(0.16s / var(--anim-speed, 1)) cubic-bezier(0.22, 0.7, 0.3, 1);
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.45));
-}
-
-#spectrometer-svg.is-dragging .svg-telescope-arm {
-  transition: none;
 }
 
 #svg-telescope-handle {

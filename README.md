@@ -66,8 +66,10 @@ If you prefer publishing the built folder, run `npm run build` and point Pages a
   makes the two diffraction orders asymmetric and worsens the measurement; the setup panel
   reports whether the normal is within 0.5° of zero.
 - **Rotating telescope** — drag anywhere on the turntable rim or the telescope, or use the
-  coarse (30′), fine (1′) and 10″ buttons. The arm can be locked; while locked the telescope
-  cannot move. The eyepiece shows the spectral lines drifting past a fixed vertical
+  coarse (30′), fine (1′) and 10″ buttons. The arm is rotated with an SVG
+  `rotate(a 500 330)` transform about the spectrometer axis, so it always sweeps a circle
+  concentric with the turntable and its travel is clamped to ±60° to stay inside the
+  diagram. The arm can be locked; while locked the telescope cannot move. The eyepiece shows the spectral lines drifting past a fixed vertical
   crosswire and turns green when the selected line is centred.
 - **Angular scale** — a graduated turntable with 1° ticks, numerals every 30° and a digital
   degree/minute/second readout. A configurable **vernier zero offset** shifts the raw scale
