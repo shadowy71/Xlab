@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="PCCOE Lab: a focused F.Y. Physics workspace with an interactive Simple Harmonic Motion wave simulation."
+      content="PCCOE Lab: an interactive virtual laboratory for the diffraction grating experiment, used to determine the wavelengths of mercury spectral lines with a spectrometer."
     />
-    <title>PCCOE Lab · F.Y. Physics</title>
+    <title>PCCOE Lab · Diffraction Grating Virtual Laboratory</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
@@ -20,47 +20,792 @@
           <span class="brand-mark" aria-hidden="true">PL</span>
           <span class="brand-text">
             <strong>PCCOE Lab</strong>
-            <span>F.Y. Physics</span>
+            <span>F.Y. Engineering Physics</span>
           </span>
         </a>
         <nav class="site-nav" aria-label="Page sections">
-          <a href="#topics">Topics</a>
-          <a href="#shm-simulation">SHM simulation</a>
-          <a href="#model-notes">Model notes</a>
+          <a href="#grating-lab">Diffraction grating</a>
+          <a href="#results-section">Observations</a>
+          <a href="#panel-notebook">Notebook data</a>
+          <a href="#panel-theory">Theory</a>
+          <a href="#panel-journal">Lab journal</a>
+          <a href="#panel-viva">Viva</a>
+          <a href="#shm-simulation">SHM lab</a>
         </nav>
+        <div class="header-tools">
+          <button class="button button-small button-quiet" id="contrast-toggle" type="button" aria-pressed="false">
+            High contrast
+          </button>
+          <label class="tool-label" for="animation-speed">Animation</label>
+          <select id="animation-speed" class="select-small">
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </div>
       </div>
     </header>
 
     <main class="page-shell" id="main">
-      <section class="intro" aria-labelledby="intro-heading">
-        <div class="intro-copy">
-          <p class="eyebrow">Course workspace · F.Y. Physics</p>
-          <h1 id="intro-heading">A focused lab tool for first-year physics.</h1>
-          <p>
-            One experiment is ready: a driven string for exploring simple harmonic
-            motion, traveling disturbances, and boundary reflections. The remaining
-            course areas are navigation placeholders.
+      <section class="hero" aria-labelledby="hero-heading">
+        <div class="hero-copy">
+          <p class="eyebrow">Experiment No. 2 · Optics · Virtual laboratory</p>
+          <h1 id="hero-heading">Diffraction Grating</h1>
+          <p class="hero-lead">
+            Determine the wavelengths of the different colours of light from a mercury
+            vapour lamp using a plane diffraction grating and a spectrometer. Operate
+            the lamp, collimator, grating and rotating telescope, take readings on both
+            sides of the central maximum, and build the complete observation table.
           </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#grating-lab">Open the experiment</a>
+            <button class="button" id="start-experiment" type="button">Start Experiment</button>
+            <a class="button button-quiet" href="#panel-notebook">Notebook data mode</a>
+          </div>
         </div>
-        <dl class="intro-facts" aria-label="Workspace summary">
+        <dl class="hero-facts" aria-label="Experiment parameters">
           <div>
-            <dt>Course</dt>
-            <dd>F.Y. Physics</dd>
+            <dt>Grating</dt>
+            <dd>15 000 lines / inch</dd>
           </div>
           <div>
-            <dt>Available lab</dt>
-            <dd>SHM</dd>
+            <dt>Grating element d</dt>
+            <dd>1.6933 × 10<sup>−4</sup> cm</dd>
           </div>
           <div>
-            <dt>Other topics</dt>
-            <dd>Coming soon</dd>
+            <dt>Grating equation</dt>
+            <dd>d sin θ = n λ</dd>
+          </div>
+          <div>
+            <dt>Reference lines</dt>
+            <dd>4387 · 5460 · 5790 · 6390 Å</dd>
           </div>
         </dl>
       </section>
 
-      <div class="workspace">
-        <div class="lab-column">
-          <section class="lab-section" id="shm-simulation" aria-labelledby="shm-heading">
+      <section class="lab-index" id="labs" aria-labelledby="labs-heading">
+        <div class="lab-index-head">
+          <h2 id="labs-heading">Physics laboratories</h2>
+          <p>Two working simulations. Nothing else is listed as available.</p>
+        </div>
+        <div class="lab-cards">
+          <a class="lab-card is-current" href="#grating-lab">
+            <span class="lab-card-index">Experiment 02 · Optics</span>
+            <span class="lab-card-title">Diffraction grating</span>
+            <span class="lab-card-copy">
+              Measure the wavelengths of the mercury spectrum with a spectrometer and grating.
+            </span>
+            <span class="lab-card-state">Interactive · working</span>
+          </a>
+          <a class="lab-card" href="#shm-simulation">
+            <span class="lab-card-index">Experiment 06 · Waves</span>
+            <span class="lab-card-title">Simple harmonic motion</span>
+            <span class="lab-card-copy">
+              Drive a string, watch a travelling wave reflect at fixed and free ends.
+            </span>
+            <span class="lab-card-state">Interactive · working</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="lab-section grating-lab" id="grating-lab" aria-labelledby="grating-heading">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Experiment No. 2 · Diffraction grating</p>
+            <h2 id="grating-heading">Wavelengths of the mercury spectral lines</h2>
+            <p class="section-summary">
+              <strong>Aim:</strong> to determine the wavelengths of the different colours
+              of light using a plane diffraction grating and a spectrometer, and to
+              compare them with the standard values.
+            </p>
+          </div>
+          <div class="head-badges">
+            <span class="badge badge-live"><span class="badge-dot" aria-hidden="true"></span>Simulation ready</span>
+            <button class="button button-small" id="mode-toggle" type="button" aria-pressed="false">
+              Free observation
+            </button>
+          </div>
+        </div>
+
+        <div class="tab-bar" role="tablist" aria-label="Diffraction grating sections">
+          <button
+            class="tab is-active"
+            id="tab-live"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-live"
+            tabindex="0"
+          >
+            Live experiment
+          </button>
+          <button class="tab" id="tab-notebook" type="button" role="tab" aria-selected="false" aria-controls="panel-notebook" tabindex="-1">
+            Notebook data
+          </button>
+          <button class="tab" id="tab-theory" type="button" role="tab" aria-selected="false" aria-controls="panel-theory" tabindex="-1">
+            Theory &amp; live values
+          </button>
+          <button class="tab" id="tab-viva" type="button" role="tab" aria-selected="false" aria-controls="panel-viva" tabindex="-1">
+            Viva questions
+          </button>
+          <button class="tab" id="tab-journal" type="button" role="tab" aria-selected="false" aria-controls="panel-journal" tabindex="-1">
+            Lab journal
+          </button>
+        </div>
+
+        <div class="tab-panel" id="panel-live" role="tabpanel" aria-labelledby="tab-live" tabindex="0">
+          <div class="stage-bar panel no-print">
+            <div class="stage-bar-head">
+              <span class="eyebrow">Experiment stages</span>
+              <span class="stage-progress" id="stage-progress">Stage 1 of 9</span>
+            </div>
+            <ol class="stage-list" id="stage-list"></ol>
+          </div>
+
+          <section class="panel stage-intro" id="stage-intro" aria-labelledby="stage-intro-heading">
+            <div class="panel-head">
+              <h3 id="stage-intro-heading">Experiment No. 2 · Introduction</h3>
+              <span class="chip">Before you begin</span>
+            </div>
+            <div class="stage-intro-body">
+              <div>
+                <h4>Aim</h4>
+                <p>
+                  To determine the wavelengths of the different colours of light emitted by a
+                  mercury vapour lamp, using a plane diffraction grating and a spectrometer,
+                  and to compare the measured values with the standard wavelengths.
+                </p>
+                <h4>Apparatus</h4>
+                <p>
+                  Spectrometer with collimator and telescope, plane diffraction grating
+                  (15 000 lines per inch), mercury vapour lamp, reading lens.
+                </p>
+                <h4>Basic theory</h4>
+                <p>
+                  Parallel light from the collimator falls on the grating. In a direction θ the
+                  rays from adjacent slits differ in path by d sin θ, so a bright principal
+                  maximum appears wherever d sin θ = n λ.
+                </p>
+              </div>
+              <div class="stage-intro-side">
+                <p class="formula-block">d sin θ = n λ</p>
+                <p class="formula-block">
+                  d = 2.54 / 15 000 cm<br />
+                  = 1.6933 × 10<sup>−4</sup> cm ≈ 16 933 Å
+                </p>
+                <p class="stage-intro-note">
+                  Measure each line on both sides of the central maximum. The half-separation
+                  gives θ, and λ = d sin θ / n.
+                </p>
+                <button class="button button-primary" id="stage-start" type="button">Start Experiment</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="lab-layout">
+            <div class="apparatus-column">
+              <section class="panel apparatus-panel" id="apparatus-panel" aria-labelledby="apparatus-heading">
+                <div class="panel-head">
+                  <h3 id="apparatus-heading">Spectrometer</h3>
+                  <div class="panel-head-meta">
+                    <span class="chip" id="lamp-chip">Lamp off</span>
+                    <span class="chip" id="order-chip">Order 1</span>
+                    <span class="chip" id="grating-chip">Grating not mounted</span>
+                  </div>
+                </div>
+                <div class="apparatus-frame">
+                  <svg
+                    id="spectrometer-svg"
+                    viewBox="0 0 1000 640"
+                    role="img"
+                    aria-labelledby="spectrometer-title spectrometer-desc"
+                    tabindex="0"
+                    preserveAspectRatio="xMidYMid meet"
+                  ></svg>
+                  <p class="sr-only" id="spectrometer-title">
+                    Spectrometer apparatus: mercury lamp, collimator with slit, diffraction
+                    grating on a graduated turntable, and a rotating telescope.
+                  </p>
+                  <p class="sr-only" id="spectrometer-desc">
+                    Drag on the turntable rim or the telescope to rotate it. With the diagram
+                    focused, use the left and right arrow keys for coarse rotation, Shift with
+                    the arrow keys for fine rotation, and the L key to lock the telescope.
+                  </p>
+                </div>
+                <div class="spectrum-legend" id="spectrum-legend" aria-label="Spectral lines in the selected order"></div>
+                <p class="apparatus-hint">
+                  Drag the turntable or telescope to rotate · <kbd>←</kbd> <kbd>→</kbd> coarse ·
+                  <kbd>Shift</kbd> + arrows fine · <kbd>L</kbd> lock · line positions follow
+                  d sin θ = n λ
+                </p>
+              </section>
+
+              <div class="side-by-side">
+                <section class="panel eyepiece-panel" aria-labelledby="eyepiece-heading">
+                  <div class="panel-head">
+                    <h3 id="eyepiece-heading">Telescope eyepiece</h3>
+                    <span class="chip" id="eyepiece-chip">No light</span>
+                  </div>
+                  <div class="eyepiece-frame">
+                    <svg id="eyepiece-svg" viewBox="0 0 220 242" role="img" aria-labelledby="eyepiece-title"></svg>
+                    <p class="sr-only" id="eyepiece-title">
+                      Magnified eyepiece view with a fixed vertical crosswire. Spectral lines drift
+                      past as the telescope rotates.
+                    </p>
+                  </div>
+                  <p class="eyepiece-status" id="eyepiece-status">
+                    Switch on the lamp and mount the grating to see spectral lines.
+                  </p>
+                </section>
+
+                <section class="panel readout-panel" aria-labelledby="readout-heading">
+                  <div class="panel-head">
+                    <h3 id="readout-heading">Angular readout</h3>
+                    <span class="chip" id="lock-chip">Unlocked</span>
+                  </div>
+                  <div class="digital-readout">
+                    <span class="digital-value" id="readout-dms">000° 00′ 00″</span>
+                    <small id="readout-raw">Vernier zero 0° 00′</small>
+                  </div>
+                  <dl class="mini-readouts">
+                    <div>
+                      <dt>Telescope angle</dt>
+                      <dd id="readout-telescope">0.000°</dd>
+                    </div>
+                    <div>
+                      <dt>Offset from line</dt>
+                      <dd id="readout-offset">—</dd>
+                    </div>
+                    <div>
+                      <dt>Selected line</dt>
+                      <dd id="readout-line">Violet · left</dd>
+                    </div>
+                    <div>
+                      <dt>Crosswire</dt>
+                      <dd id="readout-alignment">Not aligned</dd>
+                    </div>
+                  </dl>
+                  <p class="alignment-state" id="alignment-state">Rotate the telescope to the selected spectral line.</p>
+                </section>
+              </div>
+
+              <section class="panel guide-card" aria-labelledby="guide-heading">
+                <div class="panel-head">
+                  <h3 id="guide-heading">Lab guide</h3>
+                  <span class="chip" id="guide-stage">Stage 1 · Introduction</span>
+                </div>
+                <p class="guide-text" id="guide-text" aria-live="polite">
+                  Read the aim and theory, then start the experiment to set up the spectrometer.
+                </p>
+                <div class="guide-actions">
+                  <button class="button button-primary" id="guide-action" type="button">Start experiment</button>
+                  <button class="button button-quiet" id="guide-open-theory" type="button">Open theory</button>
+                </div>
+              </section>
+            </div>
+
+            <aside class="panel instrument-panel" aria-labelledby="control-heading">
+              <div class="panel-head">
+                <h3 id="control-heading">Instrument controls</h3>
+                <button class="button button-small button-quiet" id="reset-controls" type="button">Reset controls</button>
+              </div>
+
+              <fieldset class="control-group">
+                <legend>1 · Light source</legend>
+                <button class="button button-toggle" id="lamp-toggle" type="button" aria-pressed="false">
+                  <span class="button-dot" aria-hidden="true"></span>
+                  <span id="lamp-toggle-text">Switch on mercury lamp</span>
+                </button>
+                <div class="control-block">
+                  <div class="control-head">
+                    <label for="slit-width">Collimator slit width</label>
+                    <output id="slit-width-value" for="slit-width">0.20 mm</output>
+                  </div>
+                  <input id="slit-width" type="range" min="0.05" max="1" step="0.05" value="0.2" aria-describedby="slit-width-help" />
+                  <p class="control-help" id="slit-width-help">
+                    A narrow slit gives sharp lines; a wide slit makes the lines broad and the crosswire setting less certain.
+                  </p>
+                </div>
+              </fieldset>
+
+              <fieldset class="control-group">
+                <legend>2 · Collimator &amp; grating</legend>
+                <button class="button button-toggle" id="collimator-align" type="button" aria-pressed="false">
+                  <span class="button-dot" aria-hidden="true"></span>
+                  <span id="collimator-align-text">Align collimator</span>
+                </button>
+                <button class="button button-toggle" id="grating-mount" type="button" aria-pressed="false">
+                  <span class="button-dot" aria-hidden="true"></span>
+                  <span id="grating-mount-text">Mount grating</span>
+                </button>
+                <div class="control-block">
+                  <div class="control-head">
+                    <label for="grating-tilt">Grating tilt (normal)</label>
+                    <output id="grating-tilt-value" for="grating-tilt">1.8°</output>
+                  </div>
+                  <input id="grating-tilt" type="range" min="-3" max="3" step="0.1" value="1.8" aria-describedby="grating-tilt-help" />
+                  <p class="control-help" id="grating-tilt-help">
+                    Set the grating normal perpendicular to the incident beam. A tilt makes the two sides asymmetric.
+                  </p>
+                  <button class="button button-small" id="zero-grating" type="button">Set normal to 0.0°</button>
+                </div>
+                <div class="control-block">
+                  <span class="control-label" id="order-label">Diffraction order</span>
+                  <div class="segmented" role="radiogroup" aria-labelledby="order-label" id="order-group">
+                    <label class="segment" for="order-1">
+                      <input id="order-1" type="radio" name="order" value="1" checked />
+                      <span>1st order</span>
+                    </label>
+                    <label class="segment" for="order-2">
+                      <input id="order-2" type="radio" name="order" value="2" />
+                      <span>2nd order</span>
+                    </label>
+                  </div>
+                </div>
+                <p class="setup-status" id="setup-status">Lamp off · collimator not aligned · grating not mounted.</p>
+              </fieldset>
+
+              <fieldset class="control-group">
+                <legend>3 · Scale &amp; vernier</legend>
+                <div class="control-pair">
+                  <div class="control-block">
+                    <label for="vernier-zero-deg">Vernier zero · degrees</label>
+                    <input id="vernier-zero-deg" type="number" min="0" max="359" step="1" value="0" />
+                  </div>
+                  <div class="control-block">
+                    <label for="vernier-zero-min">Vernier zero · minutes</label>
+                    <input id="vernier-zero-min" type="number" min="0" max="59" step="1" value="0" />
+                  </div>
+                </div>
+                <button class="button button-small" id="apply-zero" type="button">Apply vernier zero</button>
+                <p class="control-help">
+                  The scale reading is the telescope angle plus this offset. The two-side method cancels it.
+                </p>
+              </fieldset>
+
+              <fieldset class="control-group">
+                <legend>4 · Telescope</legend>
+                <div class="telescope-grid">
+                  <button class="button button-small" id="telescope-left" type="button" title="Rotate 30 minutes anticlockwise">↺ 30′</button>
+                  <button class="button button-small" id="telescope-right" type="button" title="Rotate 30 minutes clockwise">30′ ↻</button>
+                  <button class="button button-small" id="telescope-left-fine" type="button" title="Rotate 1 minute anticlockwise">↺ 1′</button>
+                  <button class="button button-small" id="telescope-right-fine" type="button" title="Rotate 1 minute clockwise">1′ ↻</button>
+                  <button class="button button-small" id="telescope-left-micro" type="button" title="Rotate 10 seconds anticlockwise">↺ 10″</button>
+                  <button class="button button-small" id="telescope-right-micro" type="button" title="Rotate 10 seconds clockwise">10″ ↻</button>
+                </div>
+                <div class="button-row">
+                  <button class="button button-small" id="telescope-lock" type="button" aria-pressed="false">Lock telescope</button>
+                  <button class="button button-small button-quiet" id="telescope-reset" type="button">Reset to 0°</button>
+                </div>
+                <div class="button-row">
+                  <button class="button button-primary button-small" id="record-left" type="button">Record left reading</button>
+                  <button class="button button-primary button-small" id="record-right" type="button">Record right reading</button>
+                </div>
+                <p class="control-help" id="record-help">
+                  Lock the telescope while the selected line is centred on the crosswire, then record the reading.
+                </p>
+              </fieldset>
+
+              <fieldset class="control-group">
+                <legend>5 · Spectral line</legend>
+                <div class="colour-select" id="colour-select" role="group" aria-label="Selected spectral line"></div>
+                <div class="control-block">
+                  <span class="control-label" id="side-label">Measurement side</span>
+                  <div class="segmented" role="radiogroup" aria-labelledby="side-label">
+                    <label class="segment" for="side-left">
+                      <input id="side-left" type="radio" name="side" value="left" checked />
+                      <span>Left · −θ</span>
+                    </label>
+                    <label class="segment" for="side-right">
+                      <input id="side-right" type="radio" name="side" value="right" />
+                      <span>Right · +θ</span>
+                    </label>
+                  </div>
+                  <p class="control-help">
+                    The telescope is aimed at this side of the central maximum; its line is the one the crosswire must meet.
+                  </p>
+                </div>
+                <div class="toggle-row">
+                  <label class="toggle" for="show-left">
+                    <input id="show-left" type="checkbox" checked />
+                    <span>Show left spectrum</span>
+                  </label>
+                  <label class="toggle" for="show-right">
+                    <input id="show-right" type="checkbox" checked />
+                    <span>Show right spectrum</span>
+                  </label>
+                </div>
+                <div class="control-block">
+                  <label for="wavelength-unit">Wavelength display unit</label>
+                  <select id="wavelength-unit">
+                    <option value="angstrom" selected>Ångström (Å)</option>
+                    <option value="nanometre">Nanometre (nm)</option>
+                    <option value="metre">Metre (m)</option>
+                  </select>
+                </div>
+                <label class="toggle" for="show-seconds">
+                  <input id="show-seconds" type="checkbox" checked />
+                  <span>Show arcseconds in the readout</span>
+                </label>
+              </fieldset>
+            </aside>
+          </div>
+
+          <div class="results-grid" id="results-section">
+            <section class="panel table-panel" aria-labelledby="table-a-heading">
+              <div class="panel-head">
+                <h3 id="table-a-heading">Table A · Angular observations</h3>
+                <span class="chip" id="reading-count">0 of 4 colours</span>
+              </div>
+              <p class="table-note">
+                Readings are recorded from the telescope scale. Grey “measured” tags come from
+                the simulation; “manual” entries were typed by you and are marked with a dotted outline.
+              </p>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <caption class="sr-only">Angular observations for each spectral colour</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">S. no.</th>
+                      <th scope="col">Colour</th>
+                      <th scope="col">Left θ<sub>1</sub></th>
+                      <th scope="col">Right θ<sub>2</sub></th>
+                      <th scope="col">Separation 2θ</th>
+                      <th scope="col">Diffraction angle θ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-a-body"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel table-panel" aria-labelledby="table-b-heading">
+              <div class="panel-head">
+                <h3 id="table-b-heading">Table B · Wavelength calculations</h3>
+                <span class="chip" id="calc-count">0 calculated</span>
+              </div>
+              <p class="table-note">
+                λ<sub>exp</sub> = d sin θ / n, with the standard values printed in the manual.
+                Every cell recalculates when a reading changes.
+              </p>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <caption class="sr-only">Wavelength calculations and percentage deviations</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">S. no.</th>
+                      <th scope="col">Colour</th>
+                      <th scope="col">sin θ</th>
+                      <th scope="col">λ<sub>exp</sub> (Å)</th>
+                      <th scope="col">λ<sub>std</sub> (Å)</th>
+                      <th scope="col">Signed deviation</th>
+                      <th scope="col">|Deviation|</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-b-body"></tbody>
+                </table>
+              </div>
+              <p class="table-note" id="order-note">All readings belong to order 1.</p>
+            </section>
+
+            <section class="panel calculation-panel" aria-labelledby="calc-heading">
+              <div class="panel-head">
+                <h3 id="calc-heading">Worked calculation</h3>
+                <select id="calculation-colour" class="select-small" aria-label="Colour for the worked calculation">
+                  <option value="violet" selected>Violet</option>
+                  <option value="green">Green</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="red">Red</option>
+                </select>
+              </div>
+              <div id="worked-calculation" class="worked-calculation"></div>
+            </section>
+
+            <section class="panel graph-panel" aria-labelledby="graph-heading">
+              <div class="panel-head">
+                <h3 id="graph-heading">λ against sin θ</h3>
+                <span class="chip" id="graph-chip">No data</span>
+              </div>
+              <div class="graph-frame">
+                <svg id="graph-svg" viewBox="0 0 460 300" role="img" aria-labelledby="graph-title graph-desc"></svg>
+                <p class="sr-only" id="graph-title">Graph of experimental wavelength against sine of the diffraction angle.</p>
+                <p class="sr-only" id="graph-desc">Points for violet, green, yellow and red with the theoretical line d sin theta.</p>
+              </div>
+              <p class="table-note" id="graph-caption">
+                The gradient of the best-fit line through the origin is the grating element d.
+              </p>
+            </section>
+
+            <section class="panel comparison-panel" aria-labelledby="comparison-heading">
+              <div class="panel-head">
+                <h3 id="comparison-heading">Reference values</h3>
+                <span class="chip">Editable by the instructor</span>
+              </div>
+              <p class="table-note">
+                Standard wavelengths from the laboratory manual. Editing a value recalculates
+                every deviation immediately; it does not change the simulation or the readings.
+              </p>
+              <div class="reference-grid">
+                <div>
+                  <label for="ref-violet">Violet (Å)</label>
+                  <input id="ref-violet" type="number" min="3500" max="8000" step="1" value="4387" />
+                </div>
+                <div>
+                  <label for="ref-green">Green (Å)</label>
+                  <input id="ref-green" type="number" min="3500" max="8000" step="1" value="5460" />
+                </div>
+                <div>
+                  <label for="ref-yellow">Yellow (Å)</label>
+                  <input id="ref-yellow" type="number" min="3500" max="8000" step="1" value="5790" />
+                </div>
+                <div>
+                  <label for="ref-red">Red (Å)</label>
+                  <input id="ref-red" type="number" min="3500" max="8000" step="1" value="6390" />
+                </div>
+              </div>
+              <div class="comparison-actions">
+                <button class="button button-small" id="calculate-results" type="button">Calculate Results</button>
+                <button class="button button-small" id="export-csv" type="button">Export CSV</button>
+                <button class="button button-small" id="print-record" type="button">Print Lab Record</button>
+                <button class="button button-small button-danger" id="reset-experiment" type="button">Reset Experiment</button>
+                <button class="button button-small button-quiet" id="clear-storage" type="button">Clear saved data</button>
+              </div>
+              <p class="storage-note" id="storage-note">Progress is saved in this browser automatically.</p>
+            </section>
+
+            <section class="panel result-panel" aria-labelledby="result-heading">
+              <div class="panel-head">
+                <h3 id="result-heading">Result</h3>
+                <span class="chip" id="result-chip">Awaiting readings</span>
+              </div>
+              <div id="result-list" class="result-list"></div>
+              <h4 class="subheading">Conclusion</h4>
+              <p id="conclusion-text" class="conclusion-text">
+                Record the left and right readings for each colour to generate the result.
+              </p>
+            </section>
+
+            <section class="panel history-panel" aria-labelledby="history-heading">
+              <div class="panel-head">
+                <h3 id="history-heading">Measurement history</h3>
+                <span class="chip" id="history-count">0 entries</span>
+              </div>
+              <ol class="history-list" id="history-list">
+                <li class="history-empty">No measurements yet.</li>
+              </ol>
+            </section>
+          </div>
+          <p class="sr-only" id="app-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="tab-panel" id="panel-notebook" role="tabpanel" aria-labelledby="tab-notebook" tabindex="0" hidden>
+          <section class="panel notebook-banner">
+            <p class="eyebrow">Imported notebook data · not a simulation measurement</p>
+            <h3>Readings transcribed from the handwritten laboratory notebook</h3>
+            <p>
+              The readings below were copied from the notebook for Experiment No. 2. They are
+              processed exactly like live readings, but they are kept separate from the simulated
+              experiment. Changing or clearing them never alters the live observation table.
+            </p>
+            <div class="button-row">
+              <button class="button button-small" id="notebook-restore" type="button">Restore notebook readings</button>
+              <button class="button button-small button-danger" id="notebook-clear" type="button">Clear notebook dataset</button>
+              <button class="button button-small" id="notebook-export" type="button">Export notebook CSV</button>
+            </div>
+          </section>
+
+          <section class="panel table-panel" aria-labelledby="notebook-a-heading">
+            <div class="panel-head">
+              <h3 id="notebook-a-heading">Notebook observations</h3>
+              <span class="chip" id="notebook-chip">4 rows</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <caption class="sr-only">Notebook angular readings and derived angles</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Colour</th>
+                    <th scope="col">Left reading</th>
+                    <th scope="col">Right reading</th>
+                    <th scope="col">2θ (wrapped)</th>
+                    <th scope="col">θ</th>
+                  </tr>
+                </thead>
+                <tbody id="notebook-body"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel table-panel" aria-labelledby="notebook-b-heading">
+            <div class="panel-head">
+              <h3 id="notebook-b-heading">Notebook wavelengths</h3>
+              <span class="chip" id="notebook-result-chip">Recalculated from readings</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <caption class="sr-only">Notebook wavelength calculations</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Colour</th>
+                    <th scope="col">sin θ</th>
+                    <th scope="col">λ<sub>exp</sub> (Å)</th>
+                    <th scope="col">λ<sub>std</sub> (Å)</th>
+                    <th scope="col">Signed deviation</th>
+                    <th scope="col">|Deviation|</th>
+                  </tr>
+                </thead>
+                <tbody id="notebook-results"></tbody>
+              </table>
+            </div>
+            <p class="table-note" id="notebook-summary"></p>
+          </section>
+
+          <section class="panel notebook-replace" aria-labelledby="notebook-replace-heading">
+            <h3 id="notebook-replace-heading">Replace the notebook dataset</h3>
+            <p>
+              Paste one line per colour as <code>Colour, left, right</code> using degrees and
+              minutes, for example <code>Violet, 346° 12′, 16° 14′</code>. Four valid lines
+              replace the dataset; invalid lines are reported and nothing is changed.
+            </p>
+            <label for="notebook-input">New dataset</label>
+            <textarea id="notebook-input" rows="5" spellcheck="false">Violet, 346° 12′, 16° 14′
+Green, 350° 00′, 27° 37′
+Yellow, 351° 03′, 31° 02′
+Red, 355° 15′, 39° 35′</textarea>
+            <div class="button-row">
+              <button class="button button-primary button-small" id="notebook-apply" type="button">Apply dataset</button>
+              <button class="button button-small button-quiet" id="notebook-reset-text" type="button">Reset text</button>
+            </div>
+            <p class="notebook-feedback" id="notebook-feedback" role="status"></p>
+          </section>
+        </div>
+
+        <div class="tab-panel" id="panel-theory" role="tabpanel" aria-labelledby="tab-theory" tabindex="0" hidden>
+          <div class="theory-grid">
+            <section class="panel theory-panel">
+              <p class="eyebrow">Live quantities</p>
+              <h3>Values used by the physics engine right now</h3>
+              <div id="theory-live" class="theory-live"></div>
+            </section>
+
+            <section class="panel theory-panel">
+              <h3>Diffraction</h3>
+              <p>
+                Diffraction is the bending and spreading of a wave around the edges of an
+                obstacle or through a narrow aperture. It becomes noticeable when the aperture
+                is comparable with the wavelength, which is why a narrow slit produces a
+                spreading beam of light.
+              </p>
+              <h3>Diffraction grating and grating element</h3>
+              <p>
+                A plane diffraction grating is a plate ruled with a very large number of
+                equidistant, parallel slits of equal width. Adjacent slits are separated by the
+                grating element <strong>d</strong>. For the grating in the manual,
+                15 000 lines are ruled in one inch:
+              </p>
+              <p class="formula-block">
+                d = 2.54 / 15 000 cm = 1.693333 × 10<sup>−4</sup> cm
+                = 1.693333 × 10<sup>−6</sup> m ≈ 16 933.33 Å
+              </p>
+              <details class="theory-details" open>
+              <summary>Derivation of d sin θ = n λ</summary>
+              <h3>Constructive interference and principal maxima</h3>
+              <p>
+                Parallel rays from the collimator strike every slit and are diffracted in all
+                directions. In a direction θ, the rays from adjacent slits have a path
+                difference <strong>d sin θ</strong>. They reinforce each other when that path
+                difference is a whole number of wavelengths, producing a principal maximum:
+              </p>
+              <p class="formula-block">d sin θ = n λ → sin θ = n λ / d → θ = sin<sup>−1</sup>(n λ / d)</p>
+              <p>
+                In every other direction the contributions cancel, which is why sharp, dark
+                spaces appear between the bright lines.
+              </p>
+              </details>
+              <h3>Why the colours appear at different angles</h3>
+              <p>
+                The angle depends on the wavelength. For a fixed order and grating, sin θ is
+                proportional to λ, so red light (λ ≈ 6390 Å) is diffracted through a larger
+                angle than violet light (λ ≈ 4387 Å). This is the reverse of the order seen
+                with a prism and is the basis of the measurement.
+              </p>
+              <h3>Order of the spectrum</h3>
+              <p>
+                The integer n is the order. The first-order spectrum (n = 1) is the brightest
+                and is used in this experiment. A second-order spectrum appears at a larger
+                angle whenever n λ / d ≤ 1. If n λ / d exceeds 1 the equation has no real
+                solution, and no such order exists — the simulation rejects it instead of
+                drawing an impossible line.
+                <span id="order-validity"></span>
+              </p>
+              <h3>Measuring the diffraction angle</h3>
+              <p>
+                The telescope is set on the central (zero-order) image and then on the same
+                spectral line on the left and on the right of it. Let the readings be θ<sub>1</sub>
+                and θ<sub>2</sub>; the angle between the two diffracted beams is
+              </p>
+              <p class="formula-block">2θ = |θ<sub>2</sub> − θ<sub>1</sub>| (wrapped across 0°/360°) → θ = 2θ / 2</p>
+              <p>
+                Taking both sides cancels the zero error of the scale and any small error in
+                setting the grating normal, so a raw vernier reading must never be substituted
+                directly into the grating equation.
+              </p>
+              <h3>Wavelength and percentage deviation</h3>
+              <p>
+                With θ known and n = 1, the wavelength follows directly:
+                <strong>λ = d sin θ</strong>. The manual's comparison formula is
+              </p>
+              <p class="formula-block">% deviation = ((λ<sub>exp</sub> − λ<sub>std</sub>) / λ<sub>std</sub>) × 100</p>
+              <p>
+                A signed deviation shows whether the measurement is high or low; the absolute
+                deviation gives the magnitude. Small misalignment, a wide slit, backlash in the
+                tangent screw and the finite resolution of the scale all produce a few tenths
+                of a percent, which is normal for this experiment.
+              </p>
+              <p class="formula-note">
+                Rounding is applied only when values are displayed. Every calculation uses
+                full-precision SI values.
+              </p>
+            </section>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="panel-viva" role="tabpanel" aria-labelledby="tab-viva" tabindex="0" hidden>
+          <section class="panel">
+            <p class="eyebrow">Self test</p>
+            <h3>Viva questions</h3>
+            <p class="table-note">Reveal each answer when you have thought about it yourself.</p>
+            <ol class="viva-list" id="viva-list"></ol>
+          </section>
+          <section class="panel">
+            <h3>Optional numerical questions</h3>
+            <div class="viva-numeric" id="viva-numeric"></div>
+          </section>
+        </div>
+
+        <div class="tab-panel" id="panel-journal" role="tabpanel" aria-labelledby="tab-journal" tabindex="0" hidden>
+          <div class="journal-toolbar panel no-print">
+            <div>
+              <h3>Digital lab record</h3>
+              <p class="table-note">Generated from the current observation table and calculations.</p>
+            </div>
+            <div class="button-row">
+              <button class="button button-primary button-small" id="journal-print" type="button">Print Lab Record</button>
+              <button class="button button-small" id="journal-csv" type="button">Export CSV</button>
+            </div>
+          </div>
+          <div class="journal-sheet" id="journal-content"></div>
+        </div>
+      </section>
+
+      <div class="print-only" id="print-report" aria-hidden="true"></div>
+
+      <div class="lab-divider" role="presentation">
+        <span>Second laboratory</span>
+      </div>
+
+      <section class="lab-section" id="shm-simulation" aria-labelledby="shm-heading">
             <div class="section-head">
               <div>
                 <p class="eyebrow">Active lab · only implemented simulation</p>
@@ -383,7 +1128,7 @@
             </div>
           </section>
 
-          <section class="notes-section" id="model-notes" aria-labelledby="notes-heading">
+      <section class="notes-section" id="model-notes" aria-labelledby="notes-heading">
             <div class="notes-block">
               <p class="eyebrow">Reference</p>
               <h2 id="notes-heading">How to use this lab</h2>
@@ -427,87 +1172,16 @@
               </ul>
             </div>
           </section>
-        </div>
-
-        <aside class="topic-browser" id="topics" aria-labelledby="topics-heading">
-          <div class="aside-head">
-            <h2 id="topics-heading">Topic browser</h2>
-            <p>Starter navigation for the course.</p>
-          </div>
-
-          <ol class="topic-list">
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">01</span>
-              <span class="topic-name">Measurement &amp; uncertainty</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">02</span>
-              <span class="topic-name">Motion &amp; kinematics</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">03</span>
-              <span class="topic-name">Forces &amp; Newton’s laws</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">04</span>
-              <span class="topic-name">Work, energy &amp; momentum</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">05</span>
-              <span class="topic-name">Rotational motion</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-active">
-              <a class="topic-link" href="#shm-simulation">
-                <span class="topic-index">06</span>
-                <span class="topic-name">
-                  Oscillations &amp; waves
-                  <small>Simple Harmonic Motion</small>
-                </span>
-                <span class="topic-state">Open simulation</span>
-              </a>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">07</span>
-              <span class="topic-name">Thermal physics</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">08</span>
-              <span class="topic-name">Optics</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">09</span>
-              <span class="topic-name">Electricity &amp; magnetism</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-            <li class="topic-row is-placeholder" aria-disabled="true">
-              <span class="topic-index">10</span>
-              <span class="topic-name">Modern physics</span>
-              <span class="topic-state">Coming soon</span>
-            </li>
-          </ol>
-
-          <p class="topic-note" id="topic-disclaimer">
-            Starter placeholders only — not a complete or official PCCOE F.Y.
-            Physics syllabus.
-          </p>
-        </aside>
-      </div>
     </main>
 
     <footer class="site-footer">
       <div class="footer-inner">
-        <span>PCCOE Lab · F.Y. Physics</span>
-        <span>Static, dependency-free teaching tool</span>
+        <span>PCCOE Lab · F.Y. Engineering Physics</span>
+        <span>Static, dependency-free teaching tool · works offline</span>
       </div>
     </footer>
 
     <script type="module" src="./src/app.js"></script>
+    <script type="module" src="./src/lab-grating.js"></script>
   </body>
 </html>
