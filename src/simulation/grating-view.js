@@ -11,8 +11,8 @@ const SCALE_RADIUS = 198;
 const SCALE_OUTER = 216;
 const RAY_RADIUS = 300;
 const ARM_MIN_RADIUS = 150;
-const MIN_TELESCOPE = -65;
-const MAX_TELESCOPE = 65;
+const MIN_TELESCOPE = -60;
+const MAX_TELESCOPE = 60;
 
 function polar(radius, angleDeg) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -49,6 +49,15 @@ export class GratingApparatus {
     this.onRotate = options.onRotate || (() => {});
     this.onInteraction = options.onInteraction || (() => {});
     this.telescope = 0;
+    this.displayAngle = 0;
+    this.targetAngle = 0;
+    this.animationFrame = null;
+    this.lastFrameTime = 0;
+    this.reduceMotion = Boolean(
+      typeof window !== "undefined" &&
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    );
     this.dragging = false;
     this.lastPointerAngle = 0;
     this.pendingAngle = null;
@@ -166,27 +175,27 @@ export class GratingApparatus {
           <g id="svg-incident-beam" class="beam"></g>
         </g>
 
-        <g id="svg-telescope-arm" class="telescope-arm">
-          <rect x="${CX + 118}" y="${CY - 6}" width="92" height="12" rx="4" fill="url(#metal-tube)" stroke="#55647a" stroke-width="1" />
+        <g id="svg-telescope-arm" class="svg-telescope-arm">
+          <rect x="${CX + 118}" y="${CY - 6}" width="88" height="12" rx="4" fill="url(#metal-tube)" stroke="#55647a" stroke-width="1" />
           <rect x="${CX + 128}" y="${CY - 14}" width="26" height="28" rx="4" fill="url(#metal-top)" stroke="#5c6b80" stroke-width="1" />
           <g id="svg-vernier-plate">
-            <rect x="${CX + 152}" y="${CY - 13}" width="44" height="26" rx="3" fill="#10161f" stroke="#6b7d92" stroke-width="1" />
-            <path d="M${CX + 158} ${CY - 8} L${CX + 158} ${CY - 4} M${CX + 164} ${CY - 8} L${CX + 164} ${CY - 4} M${CX + 170} ${CY - 8} L${CX + 170} ${CY - 4} M${CX + 176} ${CY - 8} L${CX + 176} ${CY - 4} M${CX + 182} ${CY - 8} L${CX + 182} ${CY - 4}" stroke="#9fb0c4" stroke-width="1" />
-            <path d="M${CX + 158} ${CY + 4} L${CX + 158} ${CY + 9} M${CX + 164} ${CY + 4} L${CX + 164} ${CY + 9} M${CX + 170} ${CY + 4} L${CX + 170} ${CY + 6} M${CX + 176} ${CY + 4} L${CX + 176} ${CY + 9} M${CX + 182} ${CY + 4} L${CX + 182} ${CY + 9}" stroke="#6f8095" stroke-width="1" />
+            <rect x="${CX + 150}" y="${CY - 13}" width="42" height="26" rx="3" fill="#10161f" stroke="#6b7d92" stroke-width="1" />
+            <path d="M${CX + 156} ${CY - 8} L${CX + 156} ${CY - 4} M${CX + 162} ${CY - 8} L${CX + 162} ${CY - 4} M${CX + 168} ${CY - 8} L${CX + 168} ${CY - 4} M${CX + 174} ${CY - 8} L${CX + 174} ${CY - 4} M${CX + 180} ${CY - 8} L${CX + 180} ${CY - 4}" stroke="#9fb0c4" stroke-width="1" />
+            <path d="M${CX + 156} ${CY + 4} L${CX + 156} ${CY + 9} M${CX + 162} ${CY + 4} L${CX + 162} ${CY + 9} M${CX + 168} ${CY + 4} L${CX + 168} ${CY + 6} M${CX + 174} ${CY + 4} L${CX + 174} ${CY + 9} M${CX + 180} ${CY + 4} L${CX + 180} ${CY + 9}" stroke="#6f8095" stroke-width="1" />
           </g>
-          <rect x="${CX + 190}" y="${CY - 27}" width="112" height="54" rx="12" fill="url(#metal-tube)" stroke="#5f6f86" stroke-width="1.5" />
-          <rect x="${CX + 196}" y="${CY - 19}" width="72" height="7" rx="3.5" fill="#a8b8cc" opacity="0.3" />
-          <rect x="${CX + 188}" y="${CY - 32}" width="12" height="64" rx="4" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
-          <rect x="${CX + 292}" y="${CY - 19}" width="26" height="38" rx="5" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
-          <circle cx="${CX + 324}" cy="${CY}" r="15" fill="#111a24" stroke="url(#brass)" stroke-width="4" />
-          <circle cx="${CX + 324}" cy="${CY}" r="7" fill="#0a121b" stroke="#8ea1b6" stroke-width="1" />
-          <circle cx="${CX + 246}" cy="${CY + 29}" r="7" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
+          <rect x="${CX + 188}" y="${CY - 26}" width="94" height="52" rx="11" fill="url(#metal-tube)" stroke="#5f6f86" stroke-width="1.5" />
+          <rect x="${CX + 194}" y="${CY - 18}" width="60" height="7" rx="3.5" fill="#a8b8cc" opacity="0.3" />
+          <rect x="${CX + 186}" y="${CY - 31}" width="11" height="62" rx="4" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
+          <rect x="${CX + 270}" y="${CY - 18}" width="22" height="36" rx="5" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
+          <circle cx="${CX + 299}" cy="${CY}" r="13" fill="#111a24" stroke="url(#brass)" stroke-width="4" />
+          <circle cx="${CX + 299}" cy="${CY}" r="6" fill="#0a121b" stroke="#8ea1b6" stroke-width="1" />
+          <circle cx="${CX + 238}" cy="${CY + 28}" r="7" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
           <g id="svg-telescope-crosshair">
-            <line x1="${CX + 206}" y1="${CY - 26}" x2="${CX + 206}" y2="${CY + 26}" stroke="#7de8ff" stroke-width="1" opacity="0.55" />
+            <line x1="${CX + 204}" y1="${CY - 25}" x2="${CX + 204}" y2="${CY + 25}" stroke="#7de8ff" stroke-width="1" opacity="0.55" />
           </g>
           <g id="svg-telescope-handle" class="telescope-handle">
-            <circle cx="${CX + 324}" cy="${CY}" r="34" fill="transparent" />
-            <circle cx="${CX + 324}" cy="${CY}" r="30" fill="none" stroke="#4ee3ff" stroke-width="1.5" stroke-dasharray="4 5" opacity="0.55" />
+            <circle cx="${CX + 299}" cy="${CY}" r="30" fill="transparent" />
+            <circle cx="${CX + 299}" cy="${CY}" r="26" fill="none" stroke="#4ee3ff" stroke-width="1.5" stroke-dasharray="4 5" opacity="0.55" />
           </g>
         </g>
 
@@ -212,6 +221,7 @@ export class GratingApparatus {
     this.telescopeHandle = this.svg.querySelector("#svg-telescope-handle");
     this.lastZero = null;
     this.renderScale(0);
+    this.applyArmRotation();
   }
 
   /** Tick marks and degree numerals. Numerals show raw scale readings. */
@@ -242,9 +252,64 @@ export class GratingApparatus {
     this.scaleTicks.innerHTML = parts.join("");
   }
 
-  setTelescope(angleDeg) {
+  /**
+   * Rotates the telescope arm about the turntable centre.
+   *
+   * The rotation is written as an SVG `transform="rotate(a 500 330)"`
+   * attribute rather than a CSS transform: the attribute is applied in the
+   * SVG user-space coordinate system by every browser, so the arm always
+   * pivots around the spectrometer axis instead of its own bounding box.
+   * `immediate` skips the easing (used while dragging).
+   */
+  setTelescope(angleDeg, { immediate = false } = {}) {
     this.telescope = clamp(angleDeg, MIN_TELESCOPE, MAX_TELESCOPE);
-    this.arm.style.transform = `rotate(${(-this.telescope).toFixed(3)}deg)`;
+    this.targetAngle = this.telescope;
+    if (immediate || this.reduceMotion) {
+      this.stopAnimation();
+      this.displayAngle = this.targetAngle;
+      this.applyArmRotation();
+      return;
+    }
+    this.startAnimation();
+  }
+
+  applyArmRotation() {
+    if (!this.arm) return;
+    this.arm.setAttribute(
+      "transform",
+      `rotate(${(-this.displayAngle).toFixed(3)} ${CX} ${CY})`,
+    );
+  }
+
+  startAnimation() {
+    if (this.animationFrame !== null) return;
+    this.lastFrameTime = performance.now();
+    this.animationFrame = window.requestAnimationFrame((now) => this.stepAnimation(now));
+  }
+
+  stopAnimation() {
+    if (this.animationFrame !== null) {
+      window.cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+  }
+
+  stepAnimation(now) {
+    this.animationFrame = null;
+    const elapsed = Math.min(Math.max(now - this.lastFrameTime, 0), 64);
+    this.lastFrameTime = now;
+    const difference = this.targetAngle - this.displayAngle;
+    // Ease towards the new angle; a long frame (tab switch, heavy layout)
+    // completes the move instead of lagging behind.
+    const ease = this.reduceMotion ? 1 : Math.min(1, elapsed / 95);
+    if (Math.abs(difference) <= 0.01 || ease >= 1) {
+      this.displayAngle = this.targetAngle;
+      this.applyArmRotation();
+      return;
+    }
+    this.displayAngle += difference * ease;
+    this.applyArmRotation();
+    this.animationFrame = window.requestAnimationFrame((next) => this.stepAnimation(next));
   }
 
   /** Moves the telescope by a delta in degrees. */
@@ -255,7 +320,10 @@ export class GratingApparatus {
   }
 
   render(state) {
-    this.setTelescope(state.telescope);
+    // Large jumps (restoring a session, programmatic moves) snap into place;
+    // small steps from the buttons and keys are eased.
+    const angleGap = Math.abs(clamp(state.telescope, MIN_TELESCOPE, MAX_TELESCOPE) - this.telescope);
+    this.setTelescope(state.telescope, { immediate: angleGap > 2 });
     this.renderScale(state.zeroOffset || 0);
     this.lampUnit.classList.toggle("is-on", Boolean(state.lampOn));
     this.collimatorBody.classList.toggle("is-misaligned", !state.collimatorAligned);
@@ -445,7 +513,7 @@ export class GratingApparatus {
       this.lastPointerAngle = info.angle;
       const next = clamp(this.telescope + delta, MIN_TELESCOPE, MAX_TELESCOPE);
       if (Math.abs(next - this.telescope) < 1e-6) return;
-      this.setTelescope(next);
+      this.setTelescope(next, { immediate: true });
       this.onRotate(next);
     });
 
