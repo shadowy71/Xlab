@@ -11,8 +11,8 @@ const SCALE_RADIUS = 198;
 const SCALE_OUTER = 216;
 const RAY_RADIUS = 300;
 const ARM_MIN_RADIUS = 95;
-const MIN_TELESCOPE = -80;
-const MAX_TELESCOPE = 80;
+const MIN_TELESCOPE = -60;
+const MAX_TELESCOPE = 60;
 
 function polar(radius, angleDeg) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -175,43 +175,40 @@ export class GratingApparatus {
           <g id="svg-incident-beam" class="beam"></g>
         </g>
 
-        <!-- Telescope: a single assembly that pivots on the centre of the
-             turntable, i.e. on the grating. Its axis always points radially
-             outward, so it sweeps a circle about the grating. -->
+        <!-- Telescope: the body travels around the grating on a circular path
+             at a constant radius, always keeping its objective facing the
+             grating. The whole group is rotated about the turntable centre,
+             which is the grating, so the orbit is exactly concentric with it. -->
         <g id="svg-telescope-arm" class="svg-telescope-arm">
-          <!-- arm from the central axis out to the objective -->
-          <rect x="${CX + 18}" y="${CY - 6}" width="150" height="12" rx="6" fill="url(#metal-top)" stroke="#5a6b81" stroke-width="1.2" />
-          <rect x="${CX + 30}" y="${CY - 3}" width="120" height="3" rx="1.5" fill="#a8b8cc" opacity="0.3" />
-          <circle cx="${CX}" cy="${CY}" r="9" fill="#1b2a3a" stroke="#6e8199" stroke-width="1.4" />
-          <circle cx="${CX}" cy="${CY}" r="3" fill="#0b1119" />
+          <!-- objective barrel, aimed at the grating -->
+          <rect x="${CX + 202}" y="${CY - 21}" width="16" height="42" rx="5" fill="url(#metal-top)" stroke="#74879e" stroke-width="1.4" />
+          <circle cx="${CX + 213}" cy="${CY}" r="8" fill="#0d1b26" stroke="#8ba0b6" stroke-width="1.4" />
+          <circle cx="${CX + 213}" cy="${CY}" r="3.2" fill="#050c12" stroke="#5d7285" stroke-width="0.8" />
 
-          <!-- objective end facing the grating -->
-          <rect x="${CX + 160}" y="${CY - 19}" width="12" height="38" rx="4" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
+          <!-- index marks: where the body crosses the graduated ring -->
+          <line x1="${CX + 207}" y1="${CY - 21}" x2="${CX + 207}" y2="${CY - 28}" stroke="#7de8ff" stroke-width="2" />
+          <line x1="${CX + 207}" y1="${CY + 21}" x2="${CX + 207}" y2="${CY + 28}" stroke="#7de8ff" stroke-width="2" />
 
-          <!-- telescope tube -->
-          <rect x="${CX + 170}" y="${CY - 17}" width="112" height="34" rx="15" fill="url(#metal-tube)" stroke="#63738a" stroke-width="1.5" />
-          <rect x="${CX + 182}" y="${CY - 11}" width="86" height="6" rx="3" fill="#b3c4d8" opacity="0.3" />
-
-          <!-- index line where the tube crosses the graduation ring -->
-          <line x1="${CX + 196}" y1="${CY - 17}" x2="${CX + 196}" y2="${CY - 24}" stroke="#7de8ff" stroke-width="2" />
-          <line x1="${CX + 196}" y1="${CY + 17}" x2="${CX + 196}" y2="${CY + 24}" stroke="#7de8ff" stroke-width="2" />
+          <!-- main tube -->
+          <rect x="${CX + 218}" y="${CY - 18}" width="104" height="36" rx="16" fill="url(#metal-tube)" stroke="#63738a" stroke-width="1.5" />
+          <rect x="${CX + 230}" y="${CY - 12}" width="80" height="6" rx="3" fill="#b3c4d8" opacity="0.3" />
+          <rect x="${CX + 246}" y="${CY - 19}" width="7" height="38" rx="2" fill="#20303f" stroke="#5a6b81" stroke-width="0.8" />
+          <rect x="${CX + 296}" y="${CY - 19}" width="7" height="38" rx="2" fill="#20303f" stroke="#5a6b81" stroke-width="0.8" />
 
           <!-- draw tube and eyepiece -->
-          <rect x="${CX + 280}" y="${CY - 13}" width="18" height="26" rx="5" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
-          <rect x="${CX + 296}" y="${CY - 11}" width="14" height="22" rx="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
-          <circle cx="${CX + 314}" cy="${CY}" r="9" fill="#111a24" stroke="url(#brass)" stroke-width="3" />
-          <circle cx="${CX + 314}" cy="${CY}" r="3.5" fill="#050c12" stroke="#8ea1b6" stroke-width="0.9" />
+          <rect x="${CX + 322}" y="${CY - 13}" width="18" height="26" rx="5" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
+          <rect x="${CX + 338}" y="${CY - 11}" width="13" height="22" rx="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
+          <circle cx="${CX + 355}" cy="${CY}" r="9" fill="#111a24" stroke="url(#brass)" stroke-width="3" />
+          <circle cx="${CX + 355}" cy="${CY}" r="3.5" fill="#050c12" stroke="#8ea1b6" stroke-width="0.9" />
 
           <!-- vertical crosswire seen through the tube -->
           <g id="svg-telescope-crosshair">
-            <line x1="${CX + 210}" y1="${CY - 16}" x2="${CX + 210}" y2="${CY + 16}" stroke="#7de8ff" stroke-width="1" opacity="0.55" />
+            <line x1="${CX + 268}" y1="${CY - 17}" x2="${CX + 268}" y2="${CY + 17}" stroke="#7de8ff" stroke-width="1" opacity="0.55" />
           </g>
 
           <g id="svg-telescope-handle" class="telescope-handle">
-            <circle cx="${CX + 226}" cy="${CY}" r="30" fill="transparent" />
-            <path d="M${CX + 226} ${CY - 23} A23 23 0 0 1 ${CX + 249} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.5" opacity="0.4" />
-            <path d="M${CX + 226} ${CY + 23} A23 23 0 0 1 ${CX + 203} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.5" opacity="0.4" />
-            <path d="M${CX + 249} ${CY} L${CX + 243} ${CY - 4} M${CX + 249} ${CY} L${CX + 243} ${CY + 4} M${CX + 203} ${CY} L${CX + 209} ${CY - 4} M${CX + 203} ${CY} L${CX + 209} ${CY + 4}" fill="none" stroke="#4ee3ff" stroke-width="1.3" opacity="0.65" />
+            <rect x="${CX + 218}" y="${CY - 22}" width="104" height="44" rx="18" fill="transparent" />
+            <path d="M${CX + 288} ${CY - 29} L${CX + 296} ${CY - 29} M${CX + 288} ${CY + 29} L${CX + 296} ${CY + 29}" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" stroke-linecap="round" />
           </g>
         </g>
 
@@ -268,7 +265,7 @@ export class GratingApparatus {
   /**
    * Rotates the telescope arm about the turntable centre.
    *
-   * The rotation is written as an SVG `transform="rotate(a 500 330)"`
+   * The rotation is written as an SVG `transform="rotate(a 500 340)"`
    * attribute rather than a CSS transform: the attribute is applied in the
    * SVG user-space coordinate system by every browser, so the arm always
    * pivots around the spectrometer axis instead of its own bounding box.

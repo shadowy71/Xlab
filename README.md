@@ -65,20 +65,16 @@ If you prefer publishing the built folder, run `npm run build` and point Pages a
   The grating tilt slider rotates the normal through ±3° about the incident beam. A tilt
   makes the two diffraction orders asymmetric and worsens the measurement; the setup panel
   reports whether the normal is within 0.5° of zero.
-- **Rotating telescope** — a single tube assembly pivots on the grating at the centre of the
-  turntable and always points radially outward, so it sweeps a circle about the grating just
-  as a spectrometer telescope turns about its own axis. The index lines across the tube mark
-  the graduation it is reading. Drag the tube or the turntable, or use the coarse (30′),
-  fine (1′) and 10″ buttons; the rotation is an SVG `rotate(a 500 330)` transform, so the
-  pivot stays exactly on the grating in every browser. Travel is clamped to ±80° on either
-  side, which covers the central image and both first- and second-order spectra, and the
-  whole telescope stays inside the diagram at every angle. The telescope can be locked; while locked it cannot
-  move. The eyepiece shows the spectral lines drifting past a fixed vertical
-  crosswire and turns green when the selected line is centred.
-- **Angular scale** — a graduated turntable with 1° ticks, numerals every 30° and a digital
-  degree/minute/second readout. A configurable **vernier zero offset** shifts the raw scale
-  reading so that the instrument behaves like a real spectrometer whose zero is not at the
-  central maximum.
+- **Rotating telescope** — the body of the telescope travels around the grating on a circular
+  path at a constant radius and keeps its objective turned towards the grating, so the whole
+  instrument orbits the centre point of the apparatus. Index marks where the body crosses the
+  graduated ring give the scale reading. Drag the tube or the turntable, or use the coarse
+  (30′), fine (1′) and 10″ buttons; the orbit is an SVG `rotate(a 500 340)` transform about
+  the turntable centre, so it stays exactly concentric with the grating in every browser.
+  Travel is clamped to ±60°, which covers the central image and every first-order line (and
+  most second-order lines) while keeping the eyepiece inside the diagram. The telescope can
+  be locked; while locked it cannot move. The eyepiece shows the spectral lines drifting past
+  a fixed vertical crosswire and turns green when the selected line is centred.
 - **Spectrum** — the central maximum and the four mercury lines (violet, green, yellow,
   red) are drawn on both sides of the central beam at angles computed from the grating
   equation. First and second order can be selected; an order that has no real solution is
