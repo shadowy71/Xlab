@@ -75,7 +75,11 @@ If you prefer publishing the built folder, run `npm run build` and point Pages a
   the alignment badge and the spectrum use) without moving the grating. The tube is drawn at
   whatever angle the state holds — there is no easing lag — so the diagram and the vernier
   readout always show the same angle.
-  Travel is clamped to ±60°, which covers the central image and every first-order line (and
+  The stylesheet deliberately carries **no** `transform`, `transform-box` or `transform-origin` on
+  the telescope group: the SVG `transform` attribute is the CSS `transform` property in SVG2
+  browsers, so a stray `transform-origin` would be composed with it and slide the pivot off the
+  grating (a test in `tests/telescope-pivot.test.mjs` guards this). Travel is clamped to ±60°,
+  which covers the central image and every first-order line (and
   most second-order lines) while keeping the eyepiece inside the diagram. The telescope can
   be locked; while locked it cannot move. The eyepiece shows the spectral lines drifting past
   a fixed vertical crosswire and turns green when the selected line is centred.
