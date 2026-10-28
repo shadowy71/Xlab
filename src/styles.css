@@ -1038,12 +1038,12 @@ fieldset {
   border-radius: 6px;
 }
 
-/* The telescope arm is rotated with an SVG transform attribute set in
-   JavaScript (rotate(a 500 330)) so it always pivots around the turntable
-   axis, independent of CSS transform-box support. */
+/* The telescope arm is rotated solely by the SVG transform attribute set in
+   JavaScript (rotate(-a 500 340), pivot = GRATING_PIVOT). Do NOT add
+   transform / transform-box / transform-origin here: in SVG2 browsers the
+   transform attribute IS the CSS transform property, so a transform-origin
+   would be composed with it and move the pivot away from the grating. */
 .svg-telescope-arm {
-  transform-box: view-box;
-  transform-origin: 500px 330px;
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.45));
 }
 
@@ -1150,9 +1150,11 @@ fieldset {
   filter: drop-shadow(0 0 7px #9ad8ff);
 }
 
+/* CSS-driven tilt for the collimator misalignment; the origin is the slit
+   (354, GRATING_PIVOT.y) so the tube swings about its own optical axis. */
 #svg-collimator-body {
   transform-box: view-box;
-  transform-origin: 354px 330px;
+  transform-origin: 354px 340px;
   transition: transform calc(0.4s / var(--anim-speed, 1)) ease;
 }
 
