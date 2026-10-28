@@ -29,6 +29,10 @@ import {
 } from "./physics/grating.js";
 import { GratingApparatus } from "./simulation/grating-view.js";
 import {
+  clampTelescope,
+  lineTelescopeAngle,
+} from "./simulation/telescope-geometry.js";
+import {
   STAGES,
   STAGE_BY_ID,
   VIVA_NUMERICALS,
@@ -37,8 +41,6 @@ import {
 } from "./grating-content.js";
 
 const STORAGE_KEY = "pccoe.grating.v1";
-const MIN_TELESCOPE = -60;
-const MAX_TELESCOPE = 60;
 const SETUP_TILT_LIMIT = 0.5;
 const ARC_MINUTE = 1 / 60;
 const ARC_SECOND = 1 / 3600;
@@ -221,7 +223,7 @@ function loadState() {
     merged.slitWidth = clamp(Number(parsed.slitWidth) || 0.2, 0.05, 1);
     merged.tilt = clamp(Number(parsed.tilt) || 0, -3, 3);
     merged.zeroOffset = normalizeDegrees(Number(parsed.zeroOffset) || 0);
-    merged.telescope = clamp(Number(parsed.telescope) || 0, MIN_TELESCOPE, MAX_TELESCOPE);
+    merged.telescope = clampTelescope(Number(parsed.telescope) || 0);
     merged.locked = Boolean(parsed.locked);
     merged.unit = ["angstrom", "nanometre", "metre"].includes(parsed.unit) ? parsed.unit : "angstrom";
     merged.showSeconds = parsed.showSeconds !== false;
@@ -445,6 +447,8 @@ function collectElements() {
     "telescope-right-micro",
     "telescope-lock",
     "telescope-reset",
+    "align-line",
+    "align-line-text",
     "record-left",
     "record-right",
     "readout-dms",
@@ -897,6 +901,7 @@ function renderReadouts() {
   el["readout-dms"].textContent = formatDMS(raw, { seconds: state.showSeconds });
   el["readout-raw"].textContent = `Vernier zero ${formatDMS(state.zeroOffset, { seconds: false })} · raw scale reading`;
   el["readout-telescope"].textContent = `${state.telescope >= 0 ? "+" : "−"}${Math.abs(state.telescope).toFixed(3)}°`;
+  el["align-line-text"].textContent = `Point at ${LINE_BY_ID[state.colour].name.toLowerCase()} · ${state.side}`;
   const alignment = selectedAlignment();
   el["readout-offset"].textContent = alignment.visible
     ? formatDMS(Math.abs(alignment.offset), { seconds: true })
@@ -1429,12 +1434,52 @@ function setLocked(locked) {
   notify(locked ? "Telescope locked. The scale reading is now fixed." : "Telescope unlocked. You can rotate it again.");
 }
 
+/**
+ * Swings the telescope onto the selected spectral line.
+ *
+ * The angle comes from the same `apparentAngles` result that drives the
+ * diagram and the alignment badge, and it is written into the same
+ * `state.telescope` variable as the dial, the drag handle and the arrow keys,
+ * so the rendered tube, the vernier readout and the alignment test all update
+ * together.
+ */
+function pointTelescopeAtSelectedLine() {
+  if (state.locked) {
+    notify("The telescope is locked. Unlock it before rotating it.");
+    return;
+  }
+  if (!state.lampOn) {
+    notify("Switch on the mercury lamp to see where the line lies.");
+    return;
+  }
+  if (!state.gratingMounted) {
+    notify("Mount the diffraction grating before looking for a spectral line.");
+    return;
+  }
+  const info = lineAngle(state.colour, state.side);
+  if (!info.valid) {
+    notify(`The ${LINE_BY_ID[state.colour].name.toLowerCase()} line is not visible in order ${state.order} on the ${state.side}.`);
+    return;
+  }
+  const { angleDeg } = lineTelescopeAngle(info.angles, state.side);
+  if (!Number.isFinite(angleDeg)) {
+    notify("That line cannot be reached with the telescope's travel.");
+    return;
+  }
+  const target = clampTelescope(angleDeg);
+  state.telescope = target;
+  renderAll();
+  notify(
+    `Telescope swung to ${formatDMS(normalizeDegrees(target + state.zeroOffset), { seconds: true })} on the scale; the ${LINE_BY_ID[state.colour].name.toLowerCase()} line is centred on the crosswire.`,
+  );
+}
+
 function nudgeTelescope(deltaDeg) {
   if (state.locked) {
     notify("The telescope is locked. Unlock it before rotating.");
     return;
   }
-  state.telescope = clamp(state.telescope + deltaDeg, MIN_TELESCOPE, MAX_TELESCOPE);
+  state.telescope = clampTelescope(state.telescope + deltaDeg);
   renderAll();
 }
 
@@ -2141,6 +2186,8 @@ function bindEvents() {
     renderAll();
     notify("Telescope returned to the central maximum direction.");
   });
+
+  el["align-line"].addEventListener("click", pointTelescopeAtSelectedLine);
 
   el["record-left"].addEventListener("click", () => recordReading("left"));
   el["record-right"].addEventListener("click", () => recordReading("right"));
