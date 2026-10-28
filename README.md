@@ -65,16 +65,20 @@ If you prefer publishing the built folder, run `npm run build` and point Pages a
   The grating tilt slider rotates the normal through ±3° about the incident beam. A tilt
   makes the two diffraction orders asymmetric and worsens the measurement; the setup panel
   reports whether the normal is within 0.5° of zero.
-- **Rotating telescope** — drag anywhere on the turntable rim or the telescope, or use the
-  coarse (30′), fine (1′) and 10″ buttons. The arm is rotated with an SVG
-  `rotate(a 500 330)` transform about the spectrometer axis, so it always sweeps a circle
-  concentric with the turntable and its travel is clamped to ±60° to stay inside the
-  diagram. The arm can be locked; while locked the telescope cannot move. The eyepiece shows the spectral lines drifting past a fixed vertical
-  crosswire and turns green when the selected line is centred.
-- **Angular scale** — a graduated turntable with 1° ticks, numerals every 30° and a digital
-  degree/minute/second readout. A configurable **vernier zero offset** shifts the raw scale
-  reading so that the instrument behaves like a real spectrometer whose zero is not at the
-  central maximum.
+- **Rotating telescope** — the body of the telescope travels around the grating on a circular
+  path at a constant radius and keeps its objective turned towards the grating, so the whole
+  instrument orbits the centre point of the apparatus. Index marks where the body crosses the
+  graduated ring give the scale reading. Drag the tube or the turntable, or use the coarse
+  (30′), fine (1′) and 10″ buttons; the orbit is an SVG `rotate(a 500 340)` transform about
+  the turntable centre, so it stays exactly concentric with the grating in every browser.
+  **Point at …** swings the tube onto the selected line's diffraction angle (the same number
+  the alignment badge and the spectrum use) without moving the grating. The tube is drawn at
+  whatever angle the state holds — there is no easing lag — so the diagram and the vernier
+  readout always show the same angle.
+  Travel is clamped to ±60°, which covers the central image and every first-order line (and
+  most second-order lines) while keeping the eyepiece inside the diagram. The telescope can
+  be locked; while locked it cannot move. The eyepiece shows the spectral lines drifting past
+  a fixed vertical crosswire and turns green when the selected line is centred.
 - **Spectrum** — the central maximum and the four mercury lines (violet, green, yellow,
   red) are drawn on both sides of the central beam at angles computed from the grating
   equation. First and second order can be selected; an order that has no real solution is
@@ -174,6 +178,7 @@ src/styles.css                dark design system, responsive layout, print style
 src/lab-grating.js            diffraction grating state, interactions, tables, exports
 src/physics/grating.js        pure grating physics, units, DMS parsing/formatting
 src/simulation/grating-view.js SVG spectrometer renderer and pointer rotation
+src/simulation/telescope-geometry.js pivot, angle convention, rigid-body placement, clamp
 src/grating-content.js        stage copy, lab guide text, viva questions
 src/app.js                    SHM controls, animation loop, state synchronisation
 src/physics/shm.js            pure string/wave model
@@ -184,6 +189,9 @@ scripts/build.mjs             copies the static site into dist/
 scripts/lint.mjs              syntax, module, id, accessibility and asset checks
 tests/grating.test.mjs        grating physics and unit tests
 tests/physics.test.mjs        SHM model tests
+tests/telescope-geometry.test.mjs  telescope pivot, direction, length, line alignment
+tests/telescope-view.test.mjs      rendered transform, clamping, dragging, line selection
+tests/helpers/fake-dom.mjs    minimal DOM stub used by the renderer tests
 assets/favicon.svg            site icon
 ```
 
@@ -191,7 +199,7 @@ assets/favicon.svg            site icon
 
 ```bash
 npm run lint    # JS syntax, module imports, unique ids, labels, ARIA, assets, CSS balance
-npm test        # grating physics + SHM tests with Node's built-in runner
+npm test        # grating physics, SHM and telescope geometry/renderer tests (Node runner)
 npm run build   # copy the deployable files to dist/
 npm run check   # all of the above
 ```

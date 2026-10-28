@@ -217,7 +217,7 @@
                 <div class="apparatus-frame">
                   <svg
                     id="spectrometer-svg"
-                    viewBox="0 0 1000 640"
+                    viewBox="0 0 1000 690"
                     role="img"
                     aria-labelledby="spectrometer-title spectrometer-desc"
                     tabindex="0"
@@ -235,9 +235,11 @@
                 </div>
                 <div class="spectrum-legend" id="spectrum-legend" aria-label="Spectral lines in the selected order"></div>
                 <p class="apparatus-hint">
-                  Drag the turntable or telescope to rotate · <kbd>←</kbd> <kbd>→</kbd> coarse ·
-                  <kbd>Shift</kbd> + arrows fine · <kbd>L</kbd> lock · line positions follow
-                  d sin θ = n λ
+                  The telescope body travels around the grating at a fixed radius, always
+                  facing it, and the index marks where it crosses the graduated ring give the
+                  reading. Drag the tube or the turntable to move it ·
+                  <kbd>←</kbd> <kbd>→</kbd> coarse · <kbd>Shift</kbd> + arrows fine ·
+                  <kbd>L</kbd> lock · line angles follow d sin θ = n λ
                 </p>
               </section>
 
@@ -395,6 +397,11 @@
                   <button class="button button-small" id="telescope-right-micro" type="button" title="Rotate 10 seconds clockwise">10″ ↻</button>
                 </div>
                 <div class="button-row">
+                  <button class="button button-small" id="align-line" type="button">
+                    <span id="align-line-text">Point at violet · left</span>
+                  </button>
+                </div>
+                <div class="button-row">
                   <button class="button button-small" id="telescope-lock" type="button" aria-pressed="false">Lock telescope</button>
                   <button class="button button-small button-quiet" id="telescope-reset" type="button">Reset to 0°</button>
                 </div>
@@ -404,6 +411,8 @@
                 </div>
                 <p class="control-help" id="record-help">
                   Lock the telescope while the selected line is centred on the crosswire, then record the reading.
+                  "Point at" swings the tube onto the selected line so you can see it sitting on the crosswire;
+                  the scale moves with it, so the reading stays honest.
                 </p>
               </fieldset>
 
