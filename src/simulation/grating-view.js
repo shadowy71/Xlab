@@ -154,34 +154,36 @@ export class GratingApparatus {
           </g>
         </g>
 
+        <!-- The lamp, collimator and slit are all laid out on the optical axis
+             (y = CY), which is the same line the incident beam travels along. -->
         <g id="svg-lamp-unit">
-          <rect x="24" y="286" width="86" height="88" rx="12" fill="url(#metal-top)" stroke="#55647a" stroke-width="2" />
-          <rect x="34" y="300" width="66" height="26" rx="4" fill="#0b121b" stroke="#2c3a4c" stroke-width="1" />
-          <text x="67" y="317" text-anchor="middle" class="svg-plate-text">Hg</text>
-          <circle cx="112" cy="330" r="26" fill="url(#lamp-glow)" class="lamp-glow" />
-          <circle cx="112" cy="330" r="13" fill="#0d1a26" stroke="#7f93a8" stroke-width="2" />
-          <circle cx="112" cy="330" r="8" class="lamp-bulb" />
-          <rect x="60" y="374" width="16" height="96" fill="url(#metal-edge)" />
-          <rect x="26" y="468" width="84" height="14" rx="4" fill="url(#metal-top)" stroke="#47566b" stroke-width="1" />
-          <text x="112" y="452" text-anchor="middle" class="svg-small-label">Mercury lamp</text>
+          <rect x="24" y="${CY - 44}" width="86" height="88" rx="12" fill="url(#metal-top)" stroke="#55647a" stroke-width="2" />
+          <rect x="34" y="${CY - 30}" width="66" height="26" rx="4" fill="#0b121b" stroke="#2c3a4c" stroke-width="1" />
+          <text x="67" y="${CY - 13}" text-anchor="middle" class="svg-plate-text">Hg</text>
+          <circle cx="112" cy="${CY}" r="26" fill="url(#lamp-glow)" class="lamp-glow" />
+          <circle cx="112" cy="${CY}" r="13" fill="#0d1a26" stroke="#7f93a8" stroke-width="2" />
+          <circle cx="112" cy="${CY}" r="8" class="lamp-bulb" />
+          <rect x="60" y="${CY + 44}" width="16" height="96" fill="url(#metal-edge)" />
+          <rect x="26" y="${CY + 138}" width="84" height="14" rx="4" fill="url(#metal-top)" stroke="#47566b" stroke-width="1" />
+          <text x="112" y="${CY + 122}" text-anchor="middle" class="svg-small-label">Mercury lamp</text>
         </g>
 
         <g id="svg-spectrum-rays"></g>
 
         <g id="svg-collimator-unit">
           <g id="svg-collimator-body">
-            <rect x="150" y="382" width="18" height="96" fill="url(#metal-edge)" />
-            <rect x="120" y="470" width="80" height="14" rx="4" fill="url(#metal-top)" stroke="#47566b" stroke-width="1" />
-            <rect x="146" y="312" width="206" height="36" rx="10" fill="url(#metal-tube)" stroke="#5c6b80" stroke-width="1.5" />
-            <rect x="156" y="318" width="60" height="6" rx="3" fill="#93a3b8" opacity="0.35" />
-            <ellipse cx="236" cy="330" rx="9" ry="17" fill="#1d3242" stroke="#7f97ad" stroke-width="2" />
-            <rect x="330" y="308" width="16" height="44" rx="3" fill="url(#metal-top)" stroke="#5b6b81" stroke-width="1.5" />
+            <rect x="150" y="${CY + 52}" width="18" height="96" fill="url(#metal-edge)" />
+            <rect x="120" y="${CY + 140}" width="80" height="14" rx="4" fill="url(#metal-top)" stroke="#47566b" stroke-width="1" />
+            <rect x="146" y="${CY - 18}" width="206" height="36" rx="10" fill="url(#metal-tube)" stroke="#5c6b80" stroke-width="1.5" />
+            <rect x="156" y="${CY - 12}" width="60" height="6" rx="3" fill="#93a3b8" opacity="0.35" />
+            <ellipse cx="236" cy="${CY}" rx="9" ry="17" fill="#1d3242" stroke="#7f97ad" stroke-width="2" />
+            <rect x="330" y="${CY - 22}" width="16" height="44" rx="3" fill="url(#metal-top)" stroke="#5b6b81" stroke-width="1.5" />
             <g id="svg-slit-jaws">
-              <rect x="346" y="308" width="8" height="16" rx="2" fill="#c0ccdb" />
-              <rect x="346" y="336" width="8" height="16" rx="2" fill="#c0ccdb" />
+              <rect x="346" y="${CY - 22}" width="8" height="16" rx="2" fill="#c0ccdb" />
+              <rect x="346" y="${CY + 6}" width="8" height="16" rx="2" fill="#c0ccdb" />
             </g>
-            <circle cx="176" cy="330" r="8" fill="url(#brass)" stroke="#4c3f22" stroke-width="1" />
-            <text x="238" y="296" text-anchor="middle" class="svg-small-label">Collimator</text>
+            <circle cx="176" cy="${CY}" r="8" fill="url(#brass)" stroke="#4c3f22" stroke-width="1" />
+            <text x="238" y="${CY - 34}" text-anchor="middle" class="svg-small-label">Collimator</text>
           </g>
           <g id="svg-incident-beam" class="beam"></g>
         </g>
@@ -316,9 +318,10 @@ export class GratingApparatus {
 
     // Slit jaws: 0.05 - 1.00 mm maps to a visible gap.
     const gap = clamp(3 + state.slitWidth * 14, 3, 18);
+    const jawLength = 38 - gap / 2;
     this.slitJaws.innerHTML = `
-      <rect x="346" y="308" width="8" height="${(38 - gap / 2).toFixed(1)}" rx="2" fill="#c0ccdb" />
-      <rect x="346" y="${(352 - (38 - gap / 2)).toFixed(1)}" width="8" height="${(38 - gap / 2).toFixed(1)}" rx="2" fill="#c0ccdb" />
+      <rect x="346" y="${(CY - 22).toFixed(1)}" width="8" height="${jawLength.toFixed(1)}" rx="2" fill="#c0ccdb" />
+      <rect x="346" y="${(CY + 22 - jawLength).toFixed(1)}" width="8" height="${jawLength.toFixed(1)}" rx="2" fill="#c0ccdb" />
     `;
 
     // Incident beam from the collimator slit to the grating.
