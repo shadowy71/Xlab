@@ -37,8 +37,8 @@ import {
 } from "./grating-content.js";
 
 const STORAGE_KEY = "pccoe.grating.v1";
-const MIN_TELESCOPE = -60;
-const MAX_TELESCOPE = 60;
+const MIN_TELESCOPE = -52;
+const MAX_TELESCOPE = 52;
 const SETUP_TILT_LIMIT = 0.5;
 const ARC_MINUTE = 1 / 60;
 const ARC_SECOND = 1 / 3600;

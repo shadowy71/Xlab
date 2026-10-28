@@ -1088,6 +1088,13 @@ fieldset {
   font-size: 10px;
 }
 
+.orbit-label {
+  fill: #4c6f8c;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
 .spectrum-side-label {
   fill: #6f889e;
   font-family: var(--mono);
