@@ -10,6 +10,7 @@ const PLINTH_RADIUS = 236;
 const SCALE_RADIUS = 198;
 const SCALE_OUTER = 216;
 const RAY_RADIUS = 300;
+const TRACK_RADIUS = 224;
 const ARM_MIN_RADIUS = 150;
 const MIN_TELESCOPE = -60;
 const MAX_TELESCOPE = 60;
@@ -64,6 +65,13 @@ export class GratingApparatus {
     this.frame = null;
     this.build();
     this.bindPointer();
+  }
+
+  /** Small end stop on the telescope track at a given scale angle. */
+  trackStop(angleDeg) {
+    const point = polar(TRACK_RADIUS, angleDeg);
+    const inner = polar(TRACK_RADIUS - 12, angleDeg);
+    return `<line x1="${inner.x.toFixed(1)}" y1="${inner.y.toFixed(1)}" x2="${(point.x + (point.x - CX) * 0.06).toFixed(1)}" y2="${(point.y + (point.y - CY) * 0.06).toFixed(1)}" stroke="#5b7a94" stroke-width="2.5" stroke-linecap="round" />`;
   }
 
   build() {
@@ -175,27 +183,46 @@ export class GratingApparatus {
           <g id="svg-incident-beam" class="beam"></g>
         </g>
 
+        <!-- Circular track on which the telescope carriage rides. It is
+             concentric with the graduated circle that carries the degree
+             numerals, so the telescope orbits the reading scale. -->
+        <g id="svg-telescope-track" class="telescope-track">
+          <circle cx="${CX}" cy="${CY}" r="${TRACK_RADIUS}" fill="none" stroke="#25384b" stroke-width="7" />
+          <circle cx="${CX}" cy="${CY}" r="${TRACK_RADIUS - 3}" fill="none" stroke="#3d5a72" stroke-width="1" />
+          <circle cx="${CX}" cy="${CY}" r="${TRACK_RADIUS + 3}" fill="none" stroke="#3d5a72" stroke-width="1" />
+          ${this.trackStop(-MIN_TELESCOPE)}
+          ${this.trackStop(-MAX_TELESCOPE)}
+        </g>
+
         <g id="svg-telescope-arm" class="svg-telescope-arm">
-          <rect x="${CX + 118}" y="${CY - 6}" width="88" height="12" rx="4" fill="url(#metal-tube)" stroke="#55647a" stroke-width="1" />
-          <rect x="${CX + 128}" y="${CY - 14}" width="26" height="28" rx="4" fill="url(#metal-top)" stroke="#5c6b80" stroke-width="1" />
+          <!-- carriage straddling the track -->
+          <rect x="${CX + 200}" y="${CY - 19}" width="62" height="38" rx="10" fill="url(#metal-top)" stroke="#748499" stroke-width="1.5" />
+          <rect x="${CX + 205}" y="${CY - 13}" width="52" height="9" rx="4.5" fill="#a8b8cc" opacity="0.28" />
+          <circle cx="${CX + 214}" cy="${CY + 11}" r="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="0.8" />
+          <circle cx="${CX + 248}" cy="${CY + 11}" r="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="0.8" />
+
+          <!-- vernier index that points at the degree numerals -->
           <g id="svg-vernier-plate">
-            <rect x="${CX + 150}" y="${CY - 13}" width="42" height="26" rx="3" fill="#10161f" stroke="#6b7d92" stroke-width="1" />
-            <path d="M${CX + 156} ${CY - 8} L${CX + 156} ${CY - 4} M${CX + 162} ${CY - 8} L${CX + 162} ${CY - 4} M${CX + 168} ${CY - 8} L${CX + 168} ${CY - 4} M${CX + 174} ${CY - 8} L${CX + 174} ${CY - 4} M${CX + 180} ${CY - 8} L${CX + 180} ${CY - 4}" stroke="#9fb0c4" stroke-width="1" />
-            <path d="M${CX + 156} ${CY + 4} L${CX + 156} ${CY + 9} M${CX + 162} ${CY + 4} L${CX + 162} ${CY + 9} M${CX + 168} ${CY + 4} L${CX + 168} ${CY + 6} M${CX + 174} ${CY + 4} L${CX + 174} ${CY + 9} M${CX + 180} ${CY + 4} L${CX + 180} ${CY + 9}" stroke="#6f8095" stroke-width="1" />
+            <path d="M${CX + 202} ${CY - 19} L${CX + 186} ${CY} L${CX + 202} ${CY + 19} Z" fill="#0c1722" stroke="#7de8ff" stroke-width="1.2" />
+            <path d="M${CX + 196} ${CY - 9} L${CX + 196} ${CY - 5} M${CX + 191} ${CY - 4} L${CX + 191} ${CY - 1} M${CX + 187} ${CY} L${CX + 187} ${CY} M${CX + 191} ${CY + 1} L${CX + 191} ${CY + 4} M${CX + 196} ${CY + 5} L${CX + 196} ${CY + 9}" stroke="#9fb0c4" stroke-width="1.1" />
+            <line x1="${CX + 186}" y1="${CY}" x2="${CX + 176}" y2="${CY}" stroke="#7de8ff" stroke-width="1.4" />
           </g>
-          <rect x="${CX + 188}" y="${CY - 26}" width="94" height="52" rx="11" fill="url(#metal-tube)" stroke="#5f6f86" stroke-width="1.5" />
-          <rect x="${CX + 194}" y="${CY - 18}" width="60" height="7" rx="3.5" fill="#a8b8cc" opacity="0.3" />
-          <rect x="${CX + 186}" y="${CY - 31}" width="11" height="62" rx="4" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
-          <rect x="${CX + 270}" y="${CY - 18}" width="22" height="36" rx="5" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
-          <circle cx="${CX + 299}" cy="${CY}" r="13" fill="#111a24" stroke="url(#brass)" stroke-width="4" />
-          <circle cx="${CX + 299}" cy="${CY}" r="6" fill="#0a121b" stroke="#8ea1b6" stroke-width="1" />
-          <circle cx="${CX + 238}" cy="${CY + 28}" r="7" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
+
+          <!-- draw tube, objective collar and eyepiece -->
+          <rect x="${CX + 262}" y="${CY - 22}" width="46" height="44" rx="10" fill="url(#metal-tube)" stroke="#5f6f86" stroke-width="1.5" />
+          <rect x="${CX + 258}" y="${CY - 28}" width="10" height="56" rx="4" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
+          <rect x="${CX + 264}" y="${CY - 14}" width="34" height="7" rx="3.5" fill="#a8b8cc" opacity="0.3" />
+          <rect x="${CX + 306}" y="${CY - 17}" width="16" height="34" rx="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
+          <circle cx="${CX + 328}" cy="${CY}" r="11" fill="#111a24" stroke="url(#brass)" stroke-width="3.5" />
+          <circle cx="${CX + 328}" cy="${CY}" r="5" fill="#0a121b" stroke="#8ea1b6" stroke-width="1" />
           <g id="svg-telescope-crosshair">
-            <line x1="${CX + 204}" y1="${CY - 25}" x2="${CX + 204}" y2="${CY + 25}" stroke="#7de8ff" stroke-width="1" opacity="0.55" />
+            <line x1="${CX + 268}" y1="${CY - 21}" x2="${CX + 268}" y2="${CY + 21}" stroke="#7de8ff" stroke-width="1" opacity="0.5" />
           </g>
           <g id="svg-telescope-handle" class="telescope-handle">
-            <circle cx="${CX + 299}" cy="${CY}" r="30" fill="transparent" />
-            <circle cx="${CX + 299}" cy="${CY}" r="26" fill="none" stroke="#4ee3ff" stroke-width="1.5" stroke-dasharray="4 5" opacity="0.55" />
+            <circle cx="${CX + 231}" cy="${CY}" r="36" fill="transparent" />
+            <path d="M${CX + 231} ${CY - 27} A27 27 0 0 1 ${CX + 258} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" />
+            <path d="M${CX + 231} ${CY + 27} A27 27 0 0 1 ${CX + 204} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" />
+            <path d="M${CX + 258} ${CY} L${CX + 252} ${CY - 4} M${CX + 258} ${CY} L${CX + 252} ${CY + 4} M${CX + 204} ${CY} L${CX + 210} ${CY - 4} M${CX + 204} ${CY} L${CX + 210} ${CY + 4}" fill="none" stroke="#4ee3ff" stroke-width="1.4" opacity="0.7" />
           </g>
         </g>
 
