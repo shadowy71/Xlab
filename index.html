@@ -397,6 +397,11 @@
                   <button class="button button-small" id="telescope-right-micro" type="button" title="Rotate 10 seconds clockwise">10″ ↻</button>
                 </div>
                 <div class="button-row">
+                  <button class="button button-small" id="align-line" type="button">
+                    <span id="align-line-text">Point at violet · left</span>
+                  </button>
+                </div>
+                <div class="button-row">
                   <button class="button button-small" id="telescope-lock" type="button" aria-pressed="false">Lock telescope</button>
                   <button class="button button-small button-quiet" id="telescope-reset" type="button">Reset to 0°</button>
                 </div>
@@ -406,6 +411,8 @@
                 </div>
                 <p class="control-help" id="record-help">
                   Lock the telescope while the selected line is centred on the crosswire, then record the reading.
+                  "Point at" swings the tube onto the selected line so you can see it sitting on the crosswire;
+                  the scale moves with it, so the reading stays honest.
                 </p>
               </fieldset>
 

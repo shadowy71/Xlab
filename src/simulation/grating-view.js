@@ -1,37 +1,59 @@
 /**
  * SVG spectrometer: mercury lamp, collimator, grating turntable, rotating
  * telescope and the diffraction spectrum. All geometry is expressed in the
- * 1000 × 640 viewBox so it scales with the panel.
+ * 1000 × 690 viewBox so it scales with the panel.
+ *
+ * The telescope is a rigid group rotated about the grating pivot — see
+ * telescope-geometry.js, which owns the pivot, the angle convention and the
+ * instrument's travel limits.
  */
 
-const CX = 500;
-const CY = 340;
+import {
+  DRAG_MIN_RADIUS,
+  GRATING_PIVOT,
+  TELESCOPE_INNER_RADIUS,
+  TELESCOPE_LENGTH,
+  TELESCOPE_MAX_DEG,
+  TELESCOPE_MIN_DEG,
+  TELESCOPE_OUTER_RADIUS,
+  clampTelescope,
+  polarToScreen,
+  screenAngleAt,
+  shortestAngleDelta,
+  telescopeRotationAttribute,
+} from "./telescope-geometry.js";
+
+// The grating pivot is the only origin in the diagram: the telescope group is
+// rotated about it, the graduated scale is centred on it and the diffraction
+// rays start from it.
+const CX = GRATING_PIVOT.x;
+const CY = GRATING_PIVOT.y;
 const PLINTH_RADIUS = 236;
 const SCALE_RADIUS = 198;
 const SCALE_OUTER = 216;
 const RAY_RADIUS = 300;
-const ARM_MIN_RADIUS = 95;
-const MIN_TELESCOPE = -60;
-const MAX_TELESCOPE = 60;
 
+/** Diagram point at `radius` and instrument angle `angleDeg` (y up). */
 function polar(radius, angleDeg) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: CX + radius * Math.cos(rad), y: CY - radius * Math.sin(rad) };
+  return polarToScreen(radius, angleDeg, GRATING_PIVOT);
 }
 
-function deg2rad(deg) {
-  return (deg * Math.PI) / 180;
-}
+// The telescope body is authored once, at 0 deg, with its axis along +x from
+// the pivot. All offsets are radii measured from the grating, so the drawing
+// and the authoritative geometry in telescope-geometry.js can never drift
+// apart: the objective sits at TELESCOPE_INNER_RADIUS and the eyepiece face at
+// TELESCOPE_OUTER_RADIUS.
+const OBJECTIVE_FACE = TELESCOPE_INNER_RADIUS; // 202
+const OBJECTIVE_LENS = OBJECTIVE_FACE + 11; // 213
+const TUBE_START = OBJECTIVE_FACE + 16; // 218
+const TUBE_END = TUBE_START + 104; // 322
+const DRAW_TUBE_END = TUBE_END + 18; // 340
+const EYEPIECE_CENTRE = TELESCOPE_OUTER_RADIUS - 9; // 355
+const CROSSWIRE = TUBE_START + 50; // 268
+const INDEX_MARK = OBJECTIVE_FACE + 5; // 207
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
-}
-
-function shortestDelta(from, to) {
-  let delta = (to - from) % 360;
-  if (delta > 180) delta -= 360;
-  if (delta < -180) delta += 360;
-  return delta;
 }
 
 function esc(text) {
@@ -49,19 +71,8 @@ export class GratingApparatus {
     this.onRotate = options.onRotate || (() => {});
     this.onInteraction = options.onInteraction || (() => {});
     this.telescope = 0;
-    this.displayAngle = 0;
-    this.targetAngle = 0;
-    this.animationFrame = null;
-    this.lastFrameTime = 0;
-    this.reduceMotion = Boolean(
-      typeof window !== "undefined" &&
-        window.matchMedia &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    );
     this.dragging = false;
     this.lastPointerAngle = 0;
-    this.pendingAngle = null;
-    this.frame = null;
     this.build();
     this.bindPointer();
   }
@@ -181,34 +192,34 @@ export class GratingApparatus {
              which is the grating, so the orbit is exactly concentric with it. -->
         <g id="svg-telescope-arm" class="svg-telescope-arm">
           <!-- objective barrel, aimed at the grating -->
-          <rect x="${CX + 202}" y="${CY - 21}" width="16" height="42" rx="5" fill="url(#metal-top)" stroke="#74879e" stroke-width="1.4" />
-          <circle cx="${CX + 213}" cy="${CY}" r="8" fill="#0d1b26" stroke="#8ba0b6" stroke-width="1.4" />
-          <circle cx="${CX + 213}" cy="${CY}" r="3.2" fill="#050c12" stroke="#5d7285" stroke-width="0.8" />
+          <rect x="${CX + OBJECTIVE_FACE}" y="${CY - 21}" width="16" height="42" rx="5" fill="url(#metal-top)" stroke="#74879e" stroke-width="1.4" />
+          <circle cx="${CX + OBJECTIVE_LENS}" cy="${CY}" r="8" fill="#0d1b26" stroke="#8ba0b6" stroke-width="1.4" />
+          <circle cx="${CX + OBJECTIVE_LENS}" cy="${CY}" r="3.2" fill="#050c12" stroke="#5d7285" stroke-width="0.8" />
 
           <!-- index marks: where the body crosses the graduated ring -->
-          <line x1="${CX + 207}" y1="${CY - 21}" x2="${CX + 207}" y2="${CY - 28}" stroke="#7de8ff" stroke-width="2" />
-          <line x1="${CX + 207}" y1="${CY + 21}" x2="${CX + 207}" y2="${CY + 28}" stroke="#7de8ff" stroke-width="2" />
+          <line x1="${CX + INDEX_MARK}" y1="${CY - 21}" x2="${CX + INDEX_MARK}" y2="${CY - 28}" stroke="#7de8ff" stroke-width="2" />
+          <line x1="${CX + INDEX_MARK}" y1="${CY + 21}" x2="${CX + INDEX_MARK}" y2="${CY + 28}" stroke="#7de8ff" stroke-width="2" />
 
           <!-- main tube -->
-          <rect x="${CX + 218}" y="${CY - 18}" width="104" height="36" rx="16" fill="url(#metal-tube)" stroke="#63738a" stroke-width="1.5" />
-          <rect x="${CX + 230}" y="${CY - 12}" width="80" height="6" rx="3" fill="#b3c4d8" opacity="0.3" />
-          <rect x="${CX + 246}" y="${CY - 19}" width="7" height="38" rx="2" fill="#20303f" stroke="#5a6b81" stroke-width="0.8" />
-          <rect x="${CX + 296}" y="${CY - 19}" width="7" height="38" rx="2" fill="#20303f" stroke="#5a6b81" stroke-width="0.8" />
+          <rect x="${CX + TUBE_START}" y="${CY - 18}" width="${TUBE_END - TUBE_START}" height="36" rx="16" fill="url(#metal-tube)" stroke="#63738a" stroke-width="1.5" />
+          <rect x="${CX + TUBE_START + 12}" y="${CY - 12}" width="${TUBE_END - TUBE_START - 24}" height="6" rx="3" fill="#b3c4d8" opacity="0.3" />
+          <rect x="${CX + TUBE_START + 28}" y="${CY - 19}" width="7" height="38" rx="2" fill="#20303f" stroke="#5a6b81" stroke-width="0.8" />
+          <rect x="${CX + TUBE_END - 26}" y="${CY - 19}" width="7" height="38" rx="2" fill="#20303f" stroke="#5a6b81" stroke-width="0.8" />
 
           <!-- draw tube and eyepiece -->
-          <rect x="${CX + 322}" y="${CY - 13}" width="18" height="26" rx="5" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
-          <rect x="${CX + 338}" y="${CY - 11}" width="13" height="22" rx="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
-          <circle cx="${CX + 355}" cy="${CY}" r="9" fill="#111a24" stroke="url(#brass)" stroke-width="3" />
-          <circle cx="${CX + 355}" cy="${CY}" r="3.5" fill="#050c12" stroke="#8ea1b6" stroke-width="0.9" />
+          <rect x="${CX + TUBE_END}" y="${CY - 13}" width="18" height="26" rx="5" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
+          <rect x="${CX + DRAW_TUBE_END}" y="${CY - 11}" width="13" height="22" rx="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
+          <circle cx="${CX + EYEPIECE_CENTRE}" cy="${CY}" r="9" fill="#111a24" stroke="url(#brass)" stroke-width="3" />
+          <circle cx="${CX + EYEPIECE_CENTRE}" cy="${CY}" r="3.5" fill="#050c12" stroke="#8ea1b6" stroke-width="0.9" />
 
           <!-- vertical crosswire seen through the tube -->
           <g id="svg-telescope-crosshair">
-            <line x1="${CX + 268}" y1="${CY - 17}" x2="${CX + 268}" y2="${CY + 17}" stroke="#7de8ff" stroke-width="1" opacity="0.55" />
+            <line x1="${CX + CROSSWIRE}" y1="${CY - 17}" x2="${CX + CROSSWIRE}" y2="${CY + 17}" stroke="#7de8ff" stroke-width="1" opacity="0.55" />
           </g>
 
           <g id="svg-telescope-handle" class="telescope-handle">
-            <rect x="${CX + 218}" y="${CY - 22}" width="104" height="44" rx="18" fill="transparent" />
-            <path d="M${CX + 288} ${CY - 29} L${CX + 296} ${CY - 29} M${CX + 288} ${CY + 29} L${CX + 296} ${CY + 29}" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" stroke-linecap="round" />
+            <rect x="${CX + TUBE_START}" y="${CY - 22}" width="${TUBE_END - TUBE_START}" height="44" rx="18" fill="transparent" />
+            <path d="M${CX + TUBE_END - 34} ${CY - 29} L${CX + TUBE_END - 26} ${CY - 29} M${CX + TUBE_END - 34} ${CY + 29} L${CX + TUBE_END - 26} ${CY + 29}" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" stroke-linecap="round" />
           </g>
         </g>
 
@@ -265,75 +276,38 @@ export class GratingApparatus {
   /**
    * Rotates the telescope arm about the turntable centre.
    *
-   * The rotation is written as an SVG `transform="rotate(a 500 340)"`
-   * attribute rather than a CSS transform: the attribute is applied in the
-   * SVG user-space coordinate system by every browser, so the arm always
-   * pivots around the spectrometer axis instead of its own bounding box.
-   * `immediate` skips the easing (used while dragging).
+   * The whole tube is one rigid group authored at 0°, so the only thing that
+   * changes is the SVG transform. It is written as the attribute
+   * `transform="rotate(a 500 340)"` rather than a CSS transform: an SVG
+   * transform attribute is resolved in user space by every browser, so the
+   * tube always pivots about the grating instead of its own bounding box.
+   *
+   * The angle is applied exactly as given (no easing): the drawing and the
+   * vernier readout both come from `state.telescope`, so the tube can never
+   * be left chasing a stale angle while the numbers have already moved on.
    */
-  setTelescope(angleDeg, { immediate = false } = {}) {
-    this.telescope = clamp(angleDeg, MIN_TELESCOPE, MAX_TELESCOPE);
-    this.targetAngle = this.telescope;
-    if (immediate || this.reduceMotion) {
-      this.stopAnimation();
-      this.displayAngle = this.targetAngle;
-      this.applyArmRotation();
-      return;
-    }
-    this.startAnimation();
+  setTelescope(angleDeg) {
+    this.telescope = clampTelescope(angleDeg);
+    this.applyArmRotation();
   }
 
   applyArmRotation() {
     if (!this.arm) return;
     this.arm.setAttribute(
       "transform",
-      `rotate(${(-this.displayAngle).toFixed(3)} ${CX} ${CY})`,
+      telescopeRotationAttribute(this.telescope, GRATING_PIVOT),
     );
-  }
-
-  startAnimation() {
-    if (this.animationFrame !== null) return;
-    this.lastFrameTime = performance.now();
-    this.animationFrame = window.requestAnimationFrame((now) => this.stepAnimation(now));
-  }
-
-  stopAnimation() {
-    if (this.animationFrame !== null) {
-      window.cancelAnimationFrame(this.animationFrame);
-      this.animationFrame = null;
-    }
-  }
-
-  stepAnimation(now) {
-    this.animationFrame = null;
-    const elapsed = Math.min(Math.max(now - this.lastFrameTime, 0), 64);
-    this.lastFrameTime = now;
-    const difference = this.targetAngle - this.displayAngle;
-    // Ease towards the new angle; a long frame (tab switch, heavy layout)
-    // completes the move instead of lagging behind.
-    const ease = this.reduceMotion ? 1 : Math.min(1, elapsed / 95);
-    if (Math.abs(difference) <= 0.01 || ease >= 1) {
-      this.displayAngle = this.targetAngle;
-      this.applyArmRotation();
-      return;
-    }
-    this.displayAngle += difference * ease;
-    this.applyArmRotation();
-    this.animationFrame = window.requestAnimationFrame((next) => this.stepAnimation(next));
   }
 
   /** Moves the telescope by a delta in degrees. */
   nudge(deltaDeg) {
-    const next = clamp(this.telescope + deltaDeg, MIN_TELESCOPE, MAX_TELESCOPE);
+    const next = clampTelescope(this.telescope + deltaDeg);
     this.setTelescope(next);
     this.onRotate(next);
   }
 
   render(state) {
-    // Large jumps (restoring a session, programmatic moves) snap into place;
-    // small steps from the buttons and keys are eased.
-    const angleGap = Math.abs(clamp(state.telescope, MIN_TELESCOPE, MAX_TELESCOPE) - this.telescope);
-    this.setTelescope(state.telescope, { immediate: angleGap > 2 });
+    this.setTelescope(state.telescope);
     this.renderScale(state.zeroOffset || 0);
     this.lampUnit.classList.toggle("is-on", Boolean(state.lampOn));
     this.collimatorBody.classList.toggle("is-misaligned", !state.collimatorAligned);
@@ -496,18 +470,16 @@ export class GratingApparatus {
     const pointerAngle = (event) => {
       const local = toLocal(event);
       if (!local) return null;
-      const dx = local.x - CX;
-      const dy = local.y - CY;
       return {
-        angle: (Math.atan2(-dy, dx) * 180) / Math.PI,
-        radius: Math.hypot(dx, dy),
+        angle: screenAngleAt(local.x, local.y, GRATING_PIVOT),
+        radius: Math.hypot(local.x - CX, local.y - CY),
       };
     };
 
     this.svg.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
       const info = pointerAngle(event);
-      if (!info || info.radius < ARM_MIN_RADIUS) return;
+      if (!info || info.radius < DRAG_MIN_RADIUS) return;
       this.dragging = true;
       this.lastPointerAngle = info.angle;
       this.svg.setPointerCapture?.(event.pointerId);
@@ -521,11 +493,11 @@ export class GratingApparatus {
       if (!this.dragging) return;
       const info = pointerAngle(event);
       if (!info) return;
-      const delta = shortestDelta(this.lastPointerAngle, info.angle);
+      const delta = shortestAngleDelta(this.lastPointerAngle, info.angle);
       this.lastPointerAngle = info.angle;
-      const next = clamp(this.telescope + delta, MIN_TELESCOPE, MAX_TELESCOPE);
+      const next = clampTelescope(this.telescope + delta);
       if (Math.abs(next - this.telescope) < 1e-6) return;
-      this.setTelescope(next, { immediate: true });
+      this.setTelescope(next);
       this.onRotate(next);
     });
 
@@ -549,7 +521,10 @@ export class GratingApparatus {
 export const APPARATUS_GEOMETRY = Object.freeze({
   centerX: CX,
   centerY: CY,
-  minTelescope: MIN_TELESCOPE,
-  maxTelescope: MAX_TELESCOPE,
+  minTelescope: TELESCOPE_MIN_DEG,
+  maxTelescope: TELESCOPE_MAX_DEG,
   scaleRadius: SCALE_RADIUS,
+  telescopeInnerRadius: TELESCOPE_INNER_RADIUS,
+  telescopeOuterRadius: TELESCOPE_OUTER_RADIUS,
+  telescopeLength: TELESCOPE_LENGTH,
 });
