@@ -65,16 +65,15 @@ If you prefer publishing the built folder, run `npm run build` and point Pages a
   The grating tilt slider rotates the normal through ±3° about the incident beam. A tilt
   makes the two diffraction orders asymmetric and worsens the measurement; the setup panel
   reports whether the normal is within 0.5° of zero.
-- **Rotating telescope** — the grating at the centre of the turntable is the axis of
-  rotation. The telescope arm is mounted on a bolted pivot collar around that axis (the
-  brass axle in the grating turns with it), so it sweeps a circular path centred on the
-  grating slit, exactly like the telescope of a real spectrometer. Its vernier pointer
-  reads the degree numerals as it passes them, and a dashed guide arc marks the circle.
-  Drag the arm or the turntable, or use the coarse (30′), fine (1′) and 10″ buttons; the
-  rotation is applied as an SVG `rotate(a 500 330)` transform, so the sweep stays exactly
-  concentric in every browser. Travel is clamped to ±52° (marked by limit ticks) so the
-  eyepiece always stays inside the diagram. The arm can be locked; while locked the
-  telescope cannot move. The eyepiece shows the spectral lines drifting past a fixed vertical
+- **Rotating telescope** — a single tube assembly pivots on the grating at the centre of the
+  turntable and always points radially outward, so it sweeps a circle about the grating just
+  as a spectrometer telescope turns about its own axis. The index lines across the tube mark
+  the graduation it is reading. Drag the tube or the turntable, or use the coarse (30′),
+  fine (1′) and 10″ buttons; the rotation is an SVG `rotate(a 500 330)` transform, so the
+  pivot stays exactly on the grating in every browser. Travel is clamped to ±80° on either
+  side, which covers the central image and both first- and second-order spectra, and the
+  whole telescope stays inside the diagram at every angle. The telescope can be locked; while locked it cannot
+  move. The eyepiece shows the spectral lines drifting past a fixed vertical
   crosswire and turns green when the selected line is centred.
 - **Angular scale** — a graduated turntable with 1° ticks, numerals every 30° and a digital
   degree/minute/second readout. A configurable **vernier zero offset** shifts the raw scale
