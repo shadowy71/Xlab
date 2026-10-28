@@ -10,10 +10,10 @@ const PLINTH_RADIUS = 236;
 const SCALE_RADIUS = 198;
 const SCALE_OUTER = 216;
 const RAY_RADIUS = 300;
-const TRACK_RADIUS = 224;
-const ARM_MIN_RADIUS = 150;
-const MIN_TELESCOPE = -60;
-const MAX_TELESCOPE = 60;
+const TRACK_RADIUS = 330;
+const ARM_MIN_RADIUS = 95;
+const MIN_TELESCOPE = -52;
+const MAX_TELESCOPE = 52;
 
 function polar(radius, angleDeg) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -67,11 +67,24 @@ export class GratingApparatus {
     this.bindPointer();
   }
 
-  /** Small end stop on the telescope track at a given scale angle. */
-  trackStop(angleDeg) {
+  /** Dashed arc, centred on the grating, showing the telescope's circular sweep. */
+  orbitArc(fromDeg, toDeg, radius) {
+    const start = polar(radius, fromDeg);
+    const end = polar(radius, toDeg);
+    return `<path d="M${start.x.toFixed(1)} ${start.y.toFixed(1)} A${radius} ${radius} 0 0 ${fromDeg > toDeg ? 1 : 0} ${end.x.toFixed(1)} ${end.y.toFixed(1)}" fill="none" stroke="#24405a" stroke-width="1.2" stroke-dasharray="3 9" stroke-linecap="round" />`;
+  }
+
+  /** Limit mark showing the end of the telescope's travel. */
+  orbitStop(angleDeg) {
     const point = polar(TRACK_RADIUS, angleDeg);
-    const inner = polar(TRACK_RADIUS - 12, angleDeg);
-    return `<line x1="${inner.x.toFixed(1)}" y1="${inner.y.toFixed(1)}" x2="${(point.x + (point.x - CX) * 0.06).toFixed(1)}" y2="${(point.y + (point.y - CY) * 0.06).toFixed(1)}" stroke="#5b7a94" stroke-width="2.5" stroke-linecap="round" />`;
+    const inner = polar(TRACK_RADIUS - 14, angleDeg);
+    return `<line x1="${inner.x.toFixed(1)}" y1="${inner.y.toFixed(1)}" x2="${point.x.toFixed(1)}" y2="${point.y.toFixed(1)}" stroke="#3f6787" stroke-width="2" stroke-linecap="round" />`;
+  }
+
+  /** Small bolt on the rotating pivot collar. */
+  hubBolt(angleDeg) {
+    const point = polar(82, angleDeg);
+    return `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="3" fill="url(#brass)" stroke="#3d3219" stroke-width="0.8" />`;
   }
 
   build() {
@@ -125,8 +138,8 @@ export class GratingApparatus {
         </pattern>
       </defs>
 
-      <rect class="svg-bench" x="0" y="574" width="1000" height="66" fill="url(#bench-gradient)" />
-      <line class="svg-bench-line" x1="0" y1="574" x2="1000" y2="574" />
+      <rect class="svg-bench" x="0" y="600" width="1000" height="40" fill="url(#bench-gradient)" />
+      <line class="svg-bench-line" x1="0" y1="600" x2="1000" y2="600" />
 
       <g class="spectrometer" aria-hidden="true">
         <ellipse cx="${CX}" cy="${CY + 16}" rx="${PLINTH_RADIUS + 12}" ry="${PLINTH_RADIUS}" fill="#0b111a" opacity="0.85" />
@@ -163,6 +176,13 @@ export class GratingApparatus {
           <text x="112" y="452" text-anchor="middle" class="svg-small-label">Mercury lamp</text>
         </g>
 
+        <g id="svg-pivot-axle" class="pivot-axle">
+          <circle cx="${CX}" cy="${CY}" r="7" fill="#0b131c" stroke="url(#brass)" stroke-width="2" />
+          <circle cx="${CX}" cy="${CY}" r="2.4" fill="#d9b877" />
+          <line x1="${CX - 13}" y1="${CY}" x2="${CX + 13}" y2="${CY}" stroke="#7de8ff" stroke-width="0.8" opacity="0.5" />
+          <line x1="${CX}" y1="${CY - 13}" x2="${CX}" y2="${CY + 13}" stroke="#7de8ff" stroke-width="0.8" opacity="0.5" />
+        </g>
+
         <g id="svg-spectrum-rays"></g>
 
         <g id="svg-collimator-unit">
@@ -183,46 +203,54 @@ export class GratingApparatus {
           <g id="svg-incident-beam" class="beam"></g>
         </g>
 
-        <!-- Circular track on which the telescope carriage rides. It is
-             concentric with the graduated circle that carries the degree
-             numerals, so the telescope orbits the reading scale. -->
-        <g id="svg-telescope-track" class="telescope-track">
-          <circle cx="${CX}" cy="${CY}" r="${TRACK_RADIUS}" fill="none" stroke="#25384b" stroke-width="7" />
-          <circle cx="${CX}" cy="${CY}" r="${TRACK_RADIUS - 3}" fill="none" stroke="#3d5a72" stroke-width="1" />
-          <circle cx="${CX}" cy="${CY}" r="${TRACK_RADIUS + 3}" fill="none" stroke="#3d5a72" stroke-width="1" />
-          ${this.trackStop(-MIN_TELESCOPE)}
-          ${this.trackStop(-MAX_TELESCOPE)}
+        <!-- Faint arc marking the circular sweep of the telescope around the
+             grating, which sits at the pivot (the centre of the turntable). -->
+        <g id="svg-orbit-guide" class="orbit-guide" aria-hidden="true">
+          ${this.orbitArc(MAX_TELESCOPE + 8, MIN_TELESCOPE - 8, TRACK_RADIUS)}
+          ${this.orbitStop(MAX_TELESCOPE)}
+          ${this.orbitStop(MIN_TELESCOPE)}
+          <text x="872" y="118" text-anchor="end" class="orbit-label">telescope sweeps a circle</text>
+          <text x="872" y="131" text-anchor="end" class="orbit-label">about the grating</text>
         </g>
 
         <g id="svg-telescope-arm" class="svg-telescope-arm">
-          <!-- carriage straddling the track -->
-          <rect x="${CX + 200}" y="${CY - 19}" width="62" height="38" rx="10" fill="url(#metal-top)" stroke="#748499" stroke-width="1.5" />
-          <rect x="${CX + 205}" y="${CY - 13}" width="52" height="9" rx="4.5" fill="#a8b8cc" opacity="0.28" />
-          <circle cx="${CX + 214}" cy="${CY + 11}" r="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="0.8" />
-          <circle cx="${CX + 248}" cy="${CY + 11}" r="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="0.8" />
+          <!-- Pivot collar on the turntable rim. The bolted collar, the axle in
+               the grating and the whole arm turn together, so the rotation is
+               visibly about the grating at the centre. -->
+          <circle cx="${CX}" cy="${CY}" r="82" fill="none" stroke="#26384c" stroke-width="9" />
+          <circle cx="${CX}" cy="${CY}" r="86.5" fill="none" stroke="#57708a" stroke-width="1.2" />
+          <circle cx="${CX}" cy="${CY}" r="77.5" fill="none" stroke="#57708a" stroke-width="1.2" />
+          ${this.hubBolt(112)}
+          ${this.hubBolt(232)}
+          ${this.hubBolt(348)}
 
-          <!-- vernier index that points at the degree numerals -->
+          <!-- radial arm from the pivot out to the reading scale -->
+          <rect x="${CX + 84}" y="${CY - 7}" width="100" height="14" rx="6" fill="url(#metal-tube)" stroke="#59697f" stroke-width="1.2" />
+          <rect x="${CX + 92}" y="${CY - 4}" width="82" height="3.5" rx="1.75" fill="#a8b8cc" opacity="0.32" />
+          <rect x="${CX + 86}" y="${CY - 15}" width="12" height="30" rx="3.5" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
+
+          <!-- vernier pointer that reads the degree ticks -->
           <g id="svg-vernier-plate">
-            <path d="M${CX + 202} ${CY - 19} L${CX + 186} ${CY} L${CX + 202} ${CY + 19} Z" fill="#0c1722" stroke="#7de8ff" stroke-width="1.2" />
-            <path d="M${CX + 196} ${CY - 9} L${CX + 196} ${CY - 5} M${CX + 191} ${CY - 4} L${CX + 191} ${CY - 1} M${CX + 187} ${CY} L${CX + 187} ${CY} M${CX + 191} ${CY + 1} L${CX + 191} ${CY + 4} M${CX + 196} ${CY + 5} L${CX + 196} ${CY + 9}" stroke="#9fb0c4" stroke-width="1.1" />
-            <line x1="${CX + 186}" y1="${CY}" x2="${CX + 176}" y2="${CY}" stroke="#7de8ff" stroke-width="1.4" />
+            <path d="M${CX + 186} ${CY - 22} L${CX + 205} ${CY} L${CX + 186} ${CY + 22} Z" fill="#0b1723" fill-opacity="0.86" stroke="#7de8ff" stroke-width="1.2" />
+            <path d="M${CX + 192} ${CY - 11} L${CX + 192} ${CY - 6} M${CX + 198} ${CY - 5} L${CX + 198} ${CY - 2} M${CX + 202} ${CY} L${CX + 202} ${CY} M${CX + 198} ${CY + 2} L${CX + 198} ${CY + 5} M${CX + 192} ${CY + 6} L${CX + 192} ${CY + 11}" stroke="#9fb0c4" stroke-width="1.1" />
           </g>
 
-          <!-- draw tube, objective collar and eyepiece -->
-          <rect x="${CX + 262}" y="${CY - 22}" width="46" height="44" rx="10" fill="url(#metal-tube)" stroke="#5f6f86" stroke-width="1.5" />
-          <rect x="${CX + 258}" y="${CY - 28}" width="10" height="56" rx="4" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
-          <rect x="${CX + 264}" y="${CY - 14}" width="34" height="7" rx="3.5" fill="#a8b8cc" opacity="0.3" />
-          <rect x="${CX + 306}" y="${CY - 17}" width="16" height="34" rx="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
-          <circle cx="${CX + 328}" cy="${CY}" r="11" fill="#111a24" stroke="url(#brass)" stroke-width="3.5" />
-          <circle cx="${CX + 328}" cy="${CY}" r="5" fill="#0a121b" stroke="#8ea1b6" stroke-width="1" />
+          <!-- carriage, draw tube, objective collar and eyepiece -->
+          <rect x="${CX + 182}" y="${CY - 19}" width="42" height="38" rx="9" fill="url(#metal-top)" stroke="#748499" stroke-width="1.4" />
+          <rect x="${CX + 226}" y="${CY - 23}" width="66" height="46" rx="11" fill="url(#metal-tube)" stroke="#5f6f86" stroke-width="1.5" />
+          <rect x="${CX + 222}" y="${CY - 29}" width="10" height="58" rx="4" fill="url(#metal-top)" stroke="#6a7b91" stroke-width="1" />
+          <rect x="${CX + 232}" y="${CY - 15}" width="50" height="7" rx="3.5" fill="#a8b8cc" opacity="0.3" />
+          <rect x="${CX + 292}" y="${CY - 18}" width="18" height="36" rx="4" fill="url(#brass)" stroke="#4b3d20" stroke-width="1" />
+          <circle cx="${CX + 316}" cy="${CY}" r="12" fill="#111a24" stroke="url(#brass)" stroke-width="3.5" />
+          <circle cx="${CX + 316}" cy="${CY}" r="5.5" fill="#0a121b" stroke="#8ea1b6" stroke-width="1" />
           <g id="svg-telescope-crosshair">
-            <line x1="${CX + 268}" y1="${CY - 21}" x2="${CX + 268}" y2="${CY + 21}" stroke="#7de8ff" stroke-width="1" opacity="0.5" />
+            <line x1="${CX + 238}" y1="${CY - 22}" x2="${CX + 238}" y2="${CY + 22}" stroke="#7de8ff" stroke-width="1" opacity="0.5" />
           </g>
           <g id="svg-telescope-handle" class="telescope-handle">
-            <circle cx="${CX + 231}" cy="${CY}" r="36" fill="transparent" />
-            <path d="M${CX + 231} ${CY - 27} A27 27 0 0 1 ${CX + 258} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" />
-            <path d="M${CX + 231} ${CY + 27} A27 27 0 0 1 ${CX + 204} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" />
-            <path d="M${CX + 258} ${CY} L${CX + 252} ${CY - 4} M${CX + 258} ${CY} L${CX + 252} ${CY + 4} M${CX + 204} ${CY} L${CX + 210} ${CY - 4} M${CX + 204} ${CY} L${CX + 210} ${CY + 4}" fill="none" stroke="#4ee3ff" stroke-width="1.4" opacity="0.7" />
+            <circle cx="${CX + 204}" cy="${CY}" r="32" fill="transparent" />
+            <path d="M${CX + 204} ${CY - 24} A24 24 0 0 1 ${CX + 228} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" />
+            <path d="M${CX + 204} ${CY + 24} A24 24 0 0 1 ${CX + 180} ${CY}" fill="none" stroke="#4ee3ff" stroke-width="1.6" opacity="0.45" />
+            <path d="M${CX + 228} ${CY} L${CX + 222} ${CY - 4} M${CX + 228} ${CY} L${CX + 222} ${CY + 4} M${CX + 180} ${CY} L${CX + 186} ${CY - 4} M${CX + 180} ${CY} L${CX + 186} ${CY + 4}" fill="none" stroke="#4ee3ff" stroke-width="1.4" opacity="0.7" />
           </g>
         </g>
 
@@ -230,7 +258,7 @@ export class GratingApparatus {
         <g id="svg-alignment-badge" class="alignment-badge"></g>
       </g>
       <g id="svg-labels" aria-hidden="true">
-        <text x="830" y="600" text-anchor="end" class="svg-small-label">Spectrometer turntable · 1° divisions</text>
+        <text x="978" y="622" text-anchor="end" class="svg-small-label">Spectrometer turntable · 1° divisions · telescope orbits the grating at the centre</text>
       </g>
     `;
 
@@ -426,7 +454,7 @@ export class GratingApparatus {
       markers.push(`
         <g class="central-max">
           <rect x="${polar(SCALE_RADIUS - 6, 0).x - 3}" y="${CY - 13}" width="6" height="26" rx="2" fill="#f6fcff" />
-          <text x="${polar(SCALE_RADIUS + 30, 0).x}" y="${CY - 9}" text-anchor="middle" class="spectrum-label central-label">0°</text>
+          <text x="${CX + 252}" y="${CY - 20}" text-anchor="middle" class="spectrum-label central-label">0°</text>
         </g>
       `);
       // Name the two sides of the spectrum so the scale readings make sense.
